@@ -10,7 +10,8 @@ import (
 )
 
 func NewClient(ctx context.Context, cfg *config.Config) *mdb.Database {
-	client, err := mdb.NewClient(options.Client().ApplyURI(fmt.Sprintf("http://%s:%d", cfg.Mongo.Host, cfg.Mongo.Port)))
+	url := fmt.Sprintf("mongodb+srv://%s:%s\\@%s/%s?retryWrites=true&w=majority", cfg.Mongo.User, cfg.Mongo.Password, cfg.Mongo.Host, cfg.Mongo.Database)
+	client, err := mdb.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
 		panic(fmt.Errorf("can't create mongo client: %s", err.Error()))
 	}

@@ -55,7 +55,10 @@ func (t *TokenRepository) UpdateTokenPrice(ctx context.Context, tokenID int, val
 			"usd": value,
 		},
 	}
-	t.collection.UpdateOne(ctx, searchBy, newPriceValue, options.Update())
+	_, err := t.collection.UpdateOne(ctx, searchBy, newPriceValue, options.Update())
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

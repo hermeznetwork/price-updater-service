@@ -41,7 +41,7 @@ func getHTTPTransport() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func NewClient(apiKey string) ports.PriceProvider {
+func NewClient(apiKey string) ports.FiatProvider {
 	slingCli := sling.New().Base(baseURL).Client(getHTTPTransport())
 
 	return &Client{
@@ -50,23 +50,25 @@ func NewClient(apiKey string) ports.PriceProvider {
 	}
 }
 
-func (c *Client) GetPrices(ctx context.Context) (float64, error) {
+func (c *Client) GetPrices(ctx context.Context) (map[string]float64, error) {
+	var rates map[string]float64
 	url := "latest?base=" + baseCurrency + "&symbols=" + currencies + "&access_key=" + c.apiKey
 	req, err := c.cli.New().Get(url).Request()
 	if err != nil {
-		return 0, err
+		return rates, err
 	}
 
 	fiatResp := fiatResult{}
 	res, err := c.cli.Do(req.WithContext(ctx), &fiatResp, nil)
 	if err != nil {
-		return 0, err
+		return rates, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return 0, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
+		return rates, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
 	}
 
-	fmt.Printf("%+v\n", fiatResp)
-	return 0, nil
+	rates = fiatResp.Rates
+	fmt.Printf("%+v\n", rates)
+	return rates, nil
 }

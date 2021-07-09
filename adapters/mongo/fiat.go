@@ -28,9 +28,9 @@ func NewFiatPriceRepository(db *mdb.Database) ports.FiatPriceRepository {
 	}
 }
 
-func (f *FiatPriceRepository) GetFiatPrices(ctx context.Context) ([]domain.FiatPrice, error) {
+func (f *FiatPriceRepository) GetFiatPrices(ctx context.Context, currency string) ([]domain.FiatPrice, error) {
 	var prices []domain.FiatPrice
-	cur, err := f.collection.Find(ctx, bson.M{})
+	cur, err := f.collection.Find(ctx, bson.M{"currency": currency})
 	if err != nil {
 		return prices, err
 	}
@@ -45,15 +45,34 @@ func (f *FiatPriceRepository) GetFiatPrices(ctx context.Context) ([]domain.FiatP
 	return prices, nil
 }
 
-func (f *FiatPriceRepository) CreateFiatPrice(ctx context.Context, fp domain.FiatPrice) error {
+func (f *FiatPriceRepository) CreateFiatPrice(ctx context.Context, base_currency, currency string, price float64) error {
 	searchBy := bson.M{
-		"currency": fp.Currency,
+		"currency": currency,
 	}
 	fiatPriceSet := bson.M{
 		"$set": bson.M{
-			"currency":      fp.Currency,
-			"base_currency": fp.BaseCurrency,
-			"price":         fp.Price,
+			"currency":      currency,
+			"base_currency": base_currency,
+			"price":         price,
+		},
+	}
+
+	_, err := f.collection.UpdateOne(ctx, searchBy, fiatPriceSet, options.Update().SetUpsert(true))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (f *FiatPriceRepository) UpdateFiatPrice(ctx context.Context, base_currency, currency string, price float64) error {
+	searchBy := bson.M{
+		"currency": currency,
+	}
+	fiatPriceSet := bson.M{
+		"$set": bson.M{
+			"currency":      currency,
+			"base_currency": base_currency,
+			"price":         price,
 		},
 	}
 
