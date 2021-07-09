@@ -4,19 +4,23 @@ import (
 	"fmt"
 
 	fb "github.com/gofiber/fiber/v2"
+	"github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers"
 	"github.com/hermeznetwork/price-updater-service/config"
 )
 
 type Server struct {
 	fiber *fb.App
 
-	// controllers
+	*controllers.PricesController
 }
 
-func NewServer() *Server {
+func NewServer(pc *controllers.PricesController) *Server {
 	server := &Server{
-		fiber: fb.New(),
+		fiber:            fb.New(),
+		PricesController: pc,
 	}
+
+	server.fiber.Get("/prices", server.GetPrices)
 	return server
 }
 

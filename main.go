@@ -2,11 +2,17 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"os"
+	"os/signal"
 
+	"github.com/hermeznetwork/price-updater-service/adapters/background"
 	"github.com/hermeznetwork/price-updater-service/adapters/bitfinex"
-	"github.com/hermeznetwork/price-updater-service/adapters/coingecko"
+	"github.com/hermeznetwork/price-updater-service/adapters/command"
+	"github.com/hermeznetwork/price-updater-service/adapters/fiber"
+	"github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers"
+	"github.com/hermeznetwork/price-updater-service/adapters/postgres"
 	"github.com/hermeznetwork/price-updater-service/config"
+	"github.com/hermeznetwork/price-updater-service/core/services"
 )
 
 func main() {
@@ -15,32 +21,45 @@ func main() {
 
 func Start(cfg config.Config) {
 	ctx := context.Background()
+	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 
-	/*
-		// setup of running provider
-		bitfinexClient := bitfinex.NewClient()
-		coingeckoClient := coingecko.NewClient()
+	// provider
+	bitfitexSymbols := []string{"0=ETH", "2=UST", "9=SUSHI", "5=WBT"}
+	bitfinexClient := bitfinex.NewClient(bitfitexSymbols)
+	// repostitory
+	priceRepository := postgres.NewTokenRepository(postgresConn)
+	// service
+	priceUpdateService := services.NewPriceUpdaterService(bitfinexClient, priceRepository, ctx)
+	// command
+	cmdUpdatePrice := command.NewUpdatePriceCommand(priceUpdateService)
+	// controller
+	priceController := controllers.NewPricesController(priceUpdateService)
 
-		// TODO: setup with database
-		mongodb := mongo.NewClient(ctx, &cfg)
-		// TODO: setup with repository (pass the database connection)
-		// TODO: setup with services
+	server := fiber.NewServer(priceController)
 
-		priceProviders := []ports.PriceProvider{
-			bitfinexClient, coingeckoClient,
+	go func(server *fiber.Server, cfg config.HTTPServerConfig) {
+		server.Start(cfg)
+	}(server, cfg.HTTPServer)
+
+	bg := background.NewBackground(ctx, cmdUpdatePrice)
+	bg.AddWg(1)
+	go bg.StartUpdateProcess()
+	waitSigInt()
+	bg.Stop()
+}
+
+func waitSigInt() {
+	stopCh := make(chan interface{})
+
+	ossig := make(chan os.Signal, 1)
+	signal.Notify(ossig, os.Interrupt)
+
+	go func() {
+		for sig := range ossig {
+			if sig == os.Interrupt {
+				stopCh <- nil
+			}
 		}
-		providerSelectorService := services.NewProviderSelectorService(priceProviders)
-		selectedProvider := providerSelectorService.Select("coingecko")
-
-		priceUpdaterService := services.NewPriceUpdaterService(selectedProvider)
-		priceUpdaterService.UpdatePrices()
-		server := fiber.NewServer()
-		server.Start(cfg.HTTPServer)
-	*/
-
-	client := coingecko.NewClient()
-	client = bitfinex.NewClient()
-	r, e := client.GetPrices(ctx)
-	fmt.Println("error: ", e)
-	fmt.Println("result: ", r)
+	}()
+	<-stopCh
 }
