@@ -70,7 +70,7 @@ func (c *Client) GetPrices(ctx context.Context) (float64, error) {
 	}
 	result := data[itemResponseKey]["usd"]
 	if res.StatusCode != http.StatusOK {
-		return 0, errors.New(fmt.Sprintf("http error: %s %d", res.StatusCode, res.Status))
+		return 0, errors.New(fmt.Sprintf("http error: %s %s", res.StatusCode, res.Status))
 	}
 	return result, nil
 }
