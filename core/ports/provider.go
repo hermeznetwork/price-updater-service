@@ -3,5 +3,5 @@ package ports
 import "context"
 
 type PriceProvider interface {
-	GetPrices(ctx context.Context) (float64, error)
+	GetPrices(ctx context.Context) ([]map[uint]float64, error)
 }

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -22,7 +24,8 @@ const (
 )
 
 type Client struct {
-	cli *sling.Sling
+	cli       *sling.Sling
+	addresses []string
 }
 
 func getHTTPTransport() *http.Client {
@@ -35,11 +38,12 @@ func getHTTPTransport() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func NewClient() ports.PriceProvider {
+func NewClient(addresses []string) ports.PriceProvider {
 	slingCli := sling.New().Base(baseUrl).Client(getHTTPTransport())
 
 	return &Client{
-		cli: slingCli,
+		cli:       slingCli,
+		addresses: addresses,
 	}
 }
 
@@ -50,27 +54,44 @@ func getUrlByAdressValue(address string) string {
 	return URL + address + URLExtraParams
 }
 
-func (c *Client) GetPrices(ctx context.Context) (float64, error) {
-	// Get the address from somewhere
-	address := "0x0000000000000000000000000000000000000000"
-	url := getUrlByAdressValue(address)
-	req, err := c.cli.New().Get(url).Request()
-	if err != nil {
-		return 0, err
-	}
+func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
+	prices := make([]map[uint]float64, len(c.addresses))
+	for _, addressRaw := range c.addresses {
+		addressSplited := strings.Split(addressRaw, "=")
+		tokenID, err := strconv.Atoi(addressSplited[0])
+		if err != nil {
+			continue
+		}
+		address := addressSplited[1]
+		url := getUrlByAdressValue(address)
+		req, err := c.cli.New().Get(url).Request()
+		if err != nil {
+			return prices, err
+		}
 
-	var data map[string]map[string]float64
-	res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
-	if err != nil {
-		return 0, err
+		var data map[string]map[string]float64
+		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
+		if err != nil {
+			return prices, err
+		}
+		itemResponseKey := "ethereum"
+		if address != EmptyAddr {
+			itemResponseKey = address
+		}
+		value := data[itemResponseKey]["usd"]
+		if res.StatusCode != http.StatusOK {
+			return prices, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
+		}
+		result := make(map[uint]float64)
+		var key uint
+		if itemResponseKey == "ethereum" {
+			key = 0
+		} else {
+			key = uint(tokenID)
+		}
+		result[key] = value
+		prices = append(prices, result)
 	}
-	itemResponseKey := "ethereum"
-	if address != EmptyAddr {
-		itemResponseKey = address
-	}
-	result := data[itemResponseKey]["usd"]
-	if res.StatusCode != http.StatusOK {
-		return 0, errors.New(fmt.Sprintf("http error: %s %s", res.StatusCode, res.Status))
-	}
-	return result, nil
+	return prices, nil
+
 }

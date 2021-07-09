@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -22,7 +25,8 @@ const (
 )
 
 type Client struct {
-	cli *sling.Sling
+	cli     *sling.Sling
+	symbols []string
 }
 
 func getHTTPTransport() *http.Client {
@@ -35,32 +39,51 @@ func getHTTPTransport() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func NewClient() ports.PriceProvider {
+func NewClient(symbols []string) ports.PriceProvider {
 	slingCli := sling.New().Base(baseUrl).Client(getHTTPTransport())
 
 	return &Client{
-		cli: slingCli,
+		cli:     slingCli,
+		symbols: symbols,
 	}
 }
 
-func (c *Client) GetPrices(ctx context.Context) (float64, error) {
-	symbol := "ETH"
-	url := URL + symbol + URLExtraParams
-	req, err := c.cli.New().Get(url).Request()
-	if err != nil {
-		return 0, err
-	}
+func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
+	prices := make([]map[uint]float64, len(c.symbols))
 
-	var data interface{}
-	res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
-	if err != nil {
-		return 0, err
-	}
+	for _, symbolRaw := range c.symbols {
+		symbolSplited := strings.Split(symbolRaw, "=")
+		tokenID, err := strconv.Atoi(symbolSplited[0])
+		if err != nil {
+			return prices, err
+		}
+		symbol := symbolSplited[1]
+		url := URL + symbol + URLExtraParams
+		req, err := c.cli.New().Get(url).Request()
+		if err != nil {
+			return prices, err
+		}
 
-	// The token price is received inside an array in the sixth position
-	result := data.([]interface{})[6].(float64)
-	if res.StatusCode != http.StatusOK {
-		return 0, errors.New(fmt.Sprintf("http error: %s %d", res.StatusCode, res.Status))
+		var data interface{}
+		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
+		if err != nil {
+			return prices, err
+		}
+
+		if data == nil {
+			log.Printf("skiping token: %s\n", symbol)
+			continue
+		}
+
+		// The token price is received inside an array in the sixth position
+		result := make(map[uint]float64)
+		value := data.([]interface{})[6].(float64)
+		if res.StatusCode != http.StatusOK {
+			return prices, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
+		}
+		result[uint(tokenID)] = value
+
+		prices = append(prices, result)
 	}
-	return result, err
+	return prices, nil
 }
