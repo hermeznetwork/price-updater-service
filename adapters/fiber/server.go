@@ -21,6 +21,9 @@ func NewServer(pc *controllers.PricesController) *Server {
 	}
 
 	server.fiber.Get("/prices", server.GetPrices)
+	server.fiber.Get("/health", func(ctx *fb.Ctx) error {
+		return ctx.SendString("Healthy")
+	})
 	return server
 }
 
