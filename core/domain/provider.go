@@ -5,8 +5,6 @@ type PriceProvider struct {
 	BaseURL        string
 	URL            string
 	URLExtraParams string
-	//SymbolsMap     symbolsMap
-	//AddressesMap   addressesMap
-	Symbols   string
-	Addresses string
+	Symbols        string
+	Addresses      string
 }

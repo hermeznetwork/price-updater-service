@@ -84,9 +84,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		}
 		result := make(map[uint]float64)
 		var key uint
-		if itemResponseKey == "ethereum" {
-			key = 0
-		} else {
+		if itemResponseKey != "ethereum" {
 			key = uint(tokenID)
 		}
 		result[key] = value
