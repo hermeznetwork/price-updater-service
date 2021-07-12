@@ -1,7 +1,13 @@
 package domain
 
 type Token struct {
-	Price   float64
-	Symbol  string
-	Address string
+	ItemID    uint
+	ID        uint
+	Price     float64
+	Symbol    string
+	Address   string
+	BlockNum  uint
+	Name      string
+	Decimals  uint
+	UsdUpdate string
 }

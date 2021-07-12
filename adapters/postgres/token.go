@@ -9,9 +9,15 @@ import (
 )
 
 type tokenFromDB struct {
-	Symbol  string
-	Price   float64
-	Address common.Address
+	ItemID    uint
+	ID        uint
+	BlockNum  uint
+	Name      string
+	Symbol    string
+	Price     float64
+	Address   common.Address
+	Decimals  uint
+	UsdUpdate string
 }
 
 type TokenRepository struct {
@@ -26,14 +32,14 @@ func NewTokenRepository(conn *Connection) ports.TokenRepository {
 
 func (t *TokenRepository) GetTokens(ctx context.Context) ([]domain.Token, error) {
 	var tokens []domain.Token
-	stmt, err := t.conn.db.QueryContext(ctx, "SELECT symbol, usd, eth_addr FROM token")
+	stmt, err := t.conn.db.QueryContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, usd_update, name, symbol, usd, eth_addr FROM token")
 	if err != nil {
 		return tokens, err
 	}
 
 	for stmt.Next() {
 		tdb := tokenFromDB{}
-		err = stmt.Scan(&tdb.Symbol, &tdb.Price, &tdb.Address)
+		err = stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
 		if err != nil {
 			return tokens, err
 		}
@@ -53,8 +59,14 @@ func (t *TokenRepository) UpdateTokenPrice(ctx context.Context, tokenID uint, va
 
 func dbToDomainToken(tdb tokenFromDB) domain.Token {
 	return domain.Token{
-		Symbol:  tdb.Symbol,
-		Price:   tdb.Price,
-		Address: tdb.Address.String(),
+		ItemID:    tdb.ItemID,
+		ID:        tdb.ID,
+		Price:     tdb.Price,
+		Symbol:    tdb.Symbol,
+		Address:   tdb.Address.String(),
+		BlockNum:  tdb.BlockNum,
+		Name:      tdb.Name,
+		Decimals:  tdb.Decimals,
+		UsdUpdate: tdb.UsdUpdate,
 	}
 }

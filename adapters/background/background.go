@@ -30,13 +30,13 @@ func (b *Background) StartUpdateProcess() {
 	for {
 		select {
 		case <-b.ctx.Done():
-			log.Println("parou parou")
+			log.Println("graceful shutdown...")
 			b.wg.Done()
 			return
 		case <-time.After(5 * time.Second):
-			log.Println("ta processando a parada")
+			log.Println("Executing...")
 			if err := b.cmd.Execute(); err != nil {
-				log.Println("deu ruim ai: ", err.Error())
+				log.Println("error while try executing: ", err.Error())
 			}
 		}
 	}
