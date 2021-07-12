@@ -1,1 +1,1 @@
-# Price Updater Serive
+# Price Updater Service
