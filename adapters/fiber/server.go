@@ -4,24 +4,27 @@ import (
 	"fmt"
 
 	fb "github.com/gofiber/fiber/v2"
-	"github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers"
+	v1 "github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers/v1"
 	"github.com/hermeznetwork/price-updater-service/config"
 )
 
 type Server struct {
 	fiber *fb.App
 
-	*controllers.PricesController
+	*v1.CurrencyController
+	*v1.TokensController
 }
 
-func NewServer(pc *controllers.PricesController) *Server {
+func NewServer(cc *v1.CurrencyController, tc *v1.TokensController) *Server {
 	server := &Server{
-		fiber:            fb.New(),
-		PricesController: pc,
+		fiber:              fb.New(),
+		CurrencyController: cc,
+		TokensController:   tc,
 	}
 
-	server.fiber.Get("/prices", server.GetPrices)
-	server.fiber.Get("/health", func(ctx *fb.Ctx) error {
+	server.fiber.Get("v1/tokens", server.GetTokenPrices)
+	server.fiber.Get("v1/currencies", server.GetFiatPrices)
+	server.fiber.Get("v1/health", func(ctx *fb.Ctx) error {
 		return ctx.SendString("Healthy")
 	})
 	return server

@@ -1,4 +1,4 @@
-package controllers
+package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -18,28 +18,28 @@ type tokenOut struct {
 	UsdUpdate        string  `json:"usdUpdate"`
 }
 
-type PricesController struct {
+type TokensController struct {
 	svc *services.PriceUpdaterService
 }
 
-func NewPricesController(s *services.PriceUpdaterService) *PricesController {
-	return &PricesController{
+func NewTokensController(s *services.PriceUpdaterService) *TokensController {
+	return &TokensController{
 		svc: s,
 	}
 }
 
-func (p *PricesController) GetPrices(ctx *fiber.Ctx) error {
+func (p *TokensController) GetTokenPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
 	prices, err := p.svc.GetTokens()
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return ctx.JSON(fiber.Map{
-		"tokens": domainToHttpReturn(prices),
+		"tokens": domainToHttpTokens(prices),
 	})
 }
 
-func domainToHttpReturn(prices []domain.Token) []tokenOut {
+func domainToHttpTokens(prices []domain.Token) []tokenOut {
 	var returnTokens []tokenOut
 
 	for _, p := range prices {
