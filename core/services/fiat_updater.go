@@ -19,6 +19,11 @@ func NewFiatUpdaterServices(fr ports.FiatPriceRepository, pr ports.FiatProvider)
 	}
 }
 
+func (f *FiatUpdaterService) GetPrice(currency string) (domain.FiatPrice, error) {
+	ctx := context.Background()
+	return f.fr.GetFiatPrice(ctx, currency)
+}
+
 func (f *FiatUpdaterService) GetPrices() ([]domain.FiatPrice, error) {
 	ctx := context.Background()
 	return f.fr.GetFiatPrices(ctx, "USD")

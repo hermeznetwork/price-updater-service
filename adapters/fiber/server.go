@@ -23,7 +23,9 @@ func NewServer(cc *v1.CurrencyController, tc *v1.TokensController) *Server {
 	}
 
 	server.fiber.Get("v1/tokens", server.GetTokenPrices)
+	server.fiber.Get("v1/tokens/:token_id", server.GetTokenPrice)
 	server.fiber.Get("v1/currencies", server.GetFiatPrices)
+	server.fiber.Get("v1/currencies/:currency", server.GetFiatPrice)
 	server.fiber.Get("v1/health", func(ctx *fb.Ctx) error {
 		return ctx.SendString("Healthy")
 	})

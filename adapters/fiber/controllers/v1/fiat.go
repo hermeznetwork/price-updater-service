@@ -23,6 +23,14 @@ func NewCurrencyController(s *services.FiatUpdaterService) *CurrencyController {
 	}
 }
 
+func (p *CurrencyController) GetFiatPrice(ctx *fiber.Ctx) error {
+	price, err := p.svc.GetPrice(ctx.Params("currency"))
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).SendString(err.Error())
+	}
+	return ctx.JSON(domainToHttpCurrency(price))
+}
+
 func (p *CurrencyController) GetFiatPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
 	prices, err := p.svc.GetPrices()
@@ -32,6 +40,15 @@ func (p *CurrencyController) GetFiatPrices(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{
 		"currencies": domainToHttpCurrencies(prices),
 	})
+}
+
+func domainToHttpCurrency(p domain.FiatPrice) fiatOut {
+	return fiatOut{
+		Currency:     p.Currency,
+		BaseCurrency: p.BaseCurrency,
+		Price:        p.Price,
+		LastUpdate:   p.LastUpdate,
+	}
 }
 
 func domainToHttpCurrencies(prices []domain.FiatPrice) []fiatOut {

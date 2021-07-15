@@ -30,6 +30,18 @@ func NewTokenRepository(conn *Connection) ports.TokenRepository {
 	}
 }
 
+func (t *TokenRepository) GetToken(ctx context.Context, tokenID uint) (domain.Token, error) {
+	var token domain.Token
+	stmt := t.conn.db.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, usd_update, name, symbol, usd, eth_addr FROM token WHERE token_id  = $1", tokenID)
+	tdb := tokenFromDB{}
+	err := stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
+	if err != nil {
+		return token, err
+	}
+	token = dbToDomainToken(tdb)
+	return token, nil
+}
+
 func (t *TokenRepository) GetTokens(ctx context.Context) ([]domain.Token, error) {
 	var tokens []domain.Token
 	stmt, err := t.conn.db.QueryContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, usd_update, name, symbol, usd, eth_addr FROM token")
