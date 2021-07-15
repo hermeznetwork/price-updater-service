@@ -7,6 +7,11 @@ type Config struct {
 	HTTPServer HTTPServerConfig
 	Postgres   PostgresConfig
 	EthConfig  EthConfig
+	Fiat       FiatConfig
+}
+
+type FiatConfig struct {
+	APIKey string
 }
 
 type MongoConfig struct {
@@ -77,6 +82,9 @@ func Load() Config {
 			EthNetwork:  viper.GetString("ETH_NETWORK"),
 			HezRollup:   viper.GetString("ETH_HEZ_ROLLUP"),
 			UsdtAddress: viper.GetString("ETH_USDT_ADDRESS"),
+		},
+		Fiat: FiatConfig{
+			APIKey: viper.GetString("FIAT_API_KEY"),
 		},
 	}
 }

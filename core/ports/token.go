@@ -7,6 +7,7 @@ import (
 )
 
 type TokenRepository interface {
+	GetToken(ctx context.Context, tokenID uint) (domain.Token, error)
 	GetTokens(ctx context.Context) ([]domain.Token, error)
 	UpdateTokenPrice(ctx context.Context, tokenID uint, value float64) error
 }

@@ -1,6 +1,8 @@
-package controllers
+package v1
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/services"
@@ -18,28 +20,55 @@ type tokenOut struct {
 	UsdUpdate        string  `json:"usdUpdate"`
 }
 
-type PricesController struct {
+type TokensController struct {
 	svc *services.PriceUpdaterService
 }
 
-func NewPricesController(s *services.PriceUpdaterService) *PricesController {
-	return &PricesController{
+func NewTokensController(s *services.PriceUpdaterService) *TokensController {
+	return &TokensController{
 		svc: s,
 	}
 }
 
-func (p *PricesController) GetPrices(ctx *fiber.Ctx) error {
+func (p *TokensController) GetTokenPrice(ctx *fiber.Ctx) error {
+	// TODO: Getting from memory
+	tokenID, err := strconv.Atoi(ctx.Params("token_id"))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	price, err := p.svc.GetToken(uint(tokenID))
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return ctx.JSON(domainToHttpToken(price))
+}
+
+func (p *TokensController) GetTokenPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
 	prices, err := p.svc.GetTokens()
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return ctx.JSON(fiber.Map{
-		"tokens": domainToHttpReturn(prices),
+		"tokens": domainToHttpTokens(prices),
 	})
 }
 
-func domainToHttpReturn(prices []domain.Token) []tokenOut {
+func domainToHttpToken(p domain.Token) tokenOut {
+	return tokenOut{
+		ItemID:           p.ItemID,
+		ID:               p.ID,
+		EthereumBlockNum: p.BlockNum,
+		EthereumAddress:  p.Address,
+		Name:             p.Name,
+		Symbol:           p.Symbol,
+		Decimals:         p.Decimals,
+		Usd:              p.Price,
+		UsdUpdate:        p.UsdUpdate,
+	}
+}
+
+func domainToHttpTokens(prices []domain.Token) []tokenOut {
 	var returnTokens []tokenOut
 
 	for _, p := range prices {

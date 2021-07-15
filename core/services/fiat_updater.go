@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
 )
 
@@ -16,6 +17,16 @@ func NewFiatUpdaterServices(fr ports.FiatPriceRepository, pr ports.FiatProvider)
 		fr: fr,
 		pr: pr,
 	}
+}
+
+func (f *FiatUpdaterService) GetPrice(currency string) (domain.FiatPrice, error) {
+	ctx := context.Background()
+	return f.fr.GetFiatPrice(ctx, currency)
+}
+
+func (f *FiatUpdaterService) GetPrices() ([]domain.FiatPrice, error) {
+	ctx := context.Background()
+	return f.fr.GetFiatPrices(ctx, "USD")
 }
 
 func (f *FiatUpdaterService) UpdatePrices() error {
