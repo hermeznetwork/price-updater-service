@@ -44,7 +44,7 @@ func (b *Background) StartUpdateProcess() {
 }
 
 func (b *Background) AddWg(i int) {
-	b.wg.Add(1)
+	b.wg.Add(i)
 }
 
 func (b *Background) Stop() {

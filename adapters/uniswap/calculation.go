@@ -15,7 +15,7 @@ type pairsInfo struct {
 	symbol0  string
 	symbol1  string
 	address0 common.Address
-	addresl1 common.Address
+	address1 common.Address
 	price    *big.Float
 }
 
@@ -79,6 +79,8 @@ func getPriceFromPairsInfo(pairAddress, currentToken common.Address, conn *ethcl
 	var tokenSymbolA string
 	var tokenSymbolB string
 
+	// Sometimes the Pair smart contract from Uniswap put in struct the tokens
+	// in a different position UTCD in token0, BAT on token1 and vice versa.
 	tokenDecimalsA = tokenDecimals0
 	tokenDecimalsB = tokenDecimals1
 	tokenReserveA = *reserve0
@@ -103,10 +105,8 @@ func getPriceFromPairsInfo(pairAddress, currentToken common.Address, conn *ethcl
 		return nil, err
 	}
 
-	amountInF := new(big.Float)
-	amountInF.SetInt(amountIn)
-	amountOutF := new(big.Float)
-	amountOutF.SetInt(amountOut)
+	amountInF := new(big.Float).SetInt(amountIn)
+	amountOutF := new(big.Float).SetInt(amountOut)
 
 	finalAmountIn := new(big.Float)
 	finalAmountOut := new(big.Float)
@@ -123,12 +123,14 @@ func getPriceFromPairsInfo(pairAddress, currentToken common.Address, conn *ethcl
 		symbol0:  tokenSymbolA,
 		symbol1:  tokenSymbolB,
 		address0: addressToken0,
-		addresl1: addressToken1,
+		address1: addressToken1,
 		price:    price,
 	}
 	return &result, nil
 }
 
+// getAmountOut was extracted from
+// https://github.com/Uniswap/uniswap-v2-periphery/blob/master/contracts/libraries/UniswapV2Library.sol#L43
 func getAmountOut(amountInt *big.Int, reserveIn big.Int, reserveOut big.Int) (*big.Int, error) {
 	zeroReturn := new(big.Int)
 	if amountInt.Int64() <= 0 {
