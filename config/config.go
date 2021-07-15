@@ -6,6 +6,11 @@ type Config struct {
 	Mongo      MongoConfig
 	HTTPServer HTTPServerConfig
 	Postgres   PostgresConfig
+	Fiat       FiatConfig
+}
+
+type FiatConfig struct {
+	APIKey string
 }
 
 type MongoConfig struct {
@@ -65,6 +70,9 @@ func Load() Config {
 			SslModeEnabled: viper.GetBool("POSTGRES_SSL_ENABLED"),
 			MaxIdleConns:   viper.GetInt("POSTGRES_MAX_ID_CONNS"),
 			MaxOpenConns:   viper.GetInt("POSTGRES_MAX_OPEN_CONNS"),
+		},
+		Fiat: FiatConfig{
+			APIKey: viper.GetString("FIAT_API_KEY"),
 		},
 	}
 }
