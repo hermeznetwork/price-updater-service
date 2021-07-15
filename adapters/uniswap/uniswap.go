@@ -7,7 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/hermeznetwork/price-updater-service/adapters/uniswap/contract"
-	"github.com/hermeznetwork/price-updater-service/adapters/uniswap/hezrollup"
 	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
 )
@@ -29,7 +28,7 @@ func NewClient(cfg config.EthConfig) (ports.PriceProvider, error) {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
-	rollup, err := hezrollup.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
+	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
 	if err != nil {
 		return nil, err
 	}
