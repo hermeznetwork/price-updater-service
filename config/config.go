@@ -6,6 +6,7 @@ type Config struct {
 	Mongo      MongoConfig
 	HTTPServer HTTPServerConfig
 	Postgres   PostgresConfig
+	EthConfig  EthConfig
 }
 
 type MongoConfig struct {
@@ -30,6 +31,12 @@ type PostgresConfig struct {
 type HTTPServerConfig struct {
 	Host string
 	Port int
+}
+
+type EthConfig struct {
+	EthNetwork  string
+	HezRollup   string
+	UsdtAddress string
 }
 
 func readDotEnvWithViper() {
@@ -65,6 +72,11 @@ func Load() Config {
 			SslModeEnabled: viper.GetBool("POSTGRES_SSL_ENABLED"),
 			MaxIdleConns:   viper.GetInt("POSTGRES_MAX_ID_CONNS"),
 			MaxOpenConns:   viper.GetInt("POSTGRES_MAX_OPEN_CONNS"),
+		},
+		EthConfig: EthConfig{
+			EthNetwork:  viper.GetString("ETH_NETWORK"),
+			HezRollup:   viper.GetString("ETH_HEZ_ROLLUP"),
+			UsdtAddress: viper.GetString("ETH_USDT_ADDRESS"),
 		},
 	}
 }
