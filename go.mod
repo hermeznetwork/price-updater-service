@@ -11,7 +11,6 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/spf13/viper v1.8.1
 	github.com/valyala/fasthttp v1.28.0 // indirect
-	go.mongodb.org/mongo-driver v1.5.4
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
