@@ -2,7 +2,6 @@ package uniswap
 
 import (
 	"context"
-	"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"

@@ -33,11 +33,12 @@ func (b *Background) StartUpdateProcess() {
 			log.Println("graceful shutdown...")
 			b.wg.Done()
 			return
-		case <-time.After(5 * time.Second):
+		case <-time.After(30 * time.Second):
 			log.Println("Executing...")
 			if err := b.cmd.Execute(); err != nil {
 				log.Println("error while try executing: ", err.Error())
 			}
+			log.Println("...done.")
 		}
 	}
 }
