@@ -1,12 +1,17 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"io/fs"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	HTTPServer HTTPServerConfig
 	Postgres   PostgresConfig
 	EthConfig  EthConfig
 	Fiat       FiatConfig
+	Bbolt      BboltConfig
 }
 
 type FiatConfig struct {
@@ -22,6 +27,11 @@ type PostgresConfig struct {
 	SslModeEnabled bool
 	MaxIdleConns   int
 	MaxOpenConns   int
+}
+
+type BboltConfig struct {
+	Location   string
+	Permission fs.FileMode
 }
 
 type HTTPServerConfig struct {
@@ -69,6 +79,10 @@ func Load() Config {
 		},
 		Fiat: FiatConfig{
 			APIKey: viper.GetString("FIAT_API_KEY"),
+		},
+		Bbolt: BboltConfig{
+			Location:   viper.GetString("BBOLT_LOCATION"),
+			Permission: fs.FileMode(viper.GetInt("BBOLD_PERMISSION")),
 		},
 	}
 }

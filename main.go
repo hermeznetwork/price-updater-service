@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/signal"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/background"
+	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
 	"github.com/hermeznetwork/price-updater-service/adapters/bitfinex"
 	"github.com/hermeznetwork/price-updater-service/adapters/command"
 	"github.com/hermeznetwork/price-updater-service/adapters/fiat"
@@ -23,6 +25,15 @@ func main() {
 func Start(cfg config.Config) {
 	ctx := context.Background()
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
+	bboltConn := bbolt.NewConnection(cfg.Bbolt)
+
+	// temp Repository
+	conficProviderRepository := bbolt.NewConfigProviderRepository(bboltConn)
+	pc, err := conficProviderRepository.LoadConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+	log.Println(pc)
 
 	// providers
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
