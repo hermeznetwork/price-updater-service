@@ -17,9 +17,19 @@ func NewFiatPricesRepository(conn *Connection) ports.FiatPriceRepository {
 	}
 }
 
-func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, currency string) ([]domain.FiatPrice, error) {
+func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string) (domain.FiatPrice, error) {
+	var fp domain.FiatPrice
+	stmt := f.conn.db.QueryRowContext(ctx, "SELECT currency, base_currency, price FROM fiat WHERE currency = $1;", currency)
+	err := stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price)
+	if err != nil {
+		return fp, err
+	}
+	return fp, nil
+}
+
+func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, baseCurrency string) ([]domain.FiatPrice, error) {
 	var fiatPrices []domain.FiatPrice
-	stmt, err := f.conn.db.Query("SELECT currency, base_currency, price FROM fiat WHERE base_currency = $1;", currency)
+	stmt, err := f.conn.db.Query("SELECT currency, base_currency, price FROM fiat WHERE base_currency = $1;", baseCurrency)
 	if err != nil {
 		return fiatPrices, err
 	}

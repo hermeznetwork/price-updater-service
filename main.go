@@ -8,8 +8,9 @@ import (
 	"github.com/hermeznetwork/price-updater-service/adapters/background"
 	"github.com/hermeznetwork/price-updater-service/adapters/bitfinex"
 	"github.com/hermeznetwork/price-updater-service/adapters/command"
+	"github.com/hermeznetwork/price-updater-service/adapters/fiat"
 	"github.com/hermeznetwork/price-updater-service/adapters/fiber"
-	"github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers"
+	v1 "github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers/v1"
 	"github.com/hermeznetwork/price-updater-service/adapters/postgres"
 	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/hermeznetwork/price-updater-service/core/services"
@@ -23,19 +24,23 @@ func Start(cfg config.Config) {
 	ctx := context.Background()
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 
-	// provider
+	// providers
+	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
 	bitfitexSymbols := []string{"0=ETH", "2=UST", "9=SUSHI", "5=WBT"}
 	bitfinexClient := bitfinex.NewClient(bitfitexSymbols)
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
+	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
 	// service
-	priceUpdateService := services.NewPriceUpdaterService(bitfinexClient, priceRepository, ctx)
+	tokenPriceUpdateService := services.NewPriceUpdaterService(bitfinexClient, priceRepository, ctx)
+	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 	// command
-	cmdUpdatePrice := command.NewUpdatePriceCommand(priceUpdateService)
-	// controller
-	priceController := controllers.NewPricesController(priceUpdateService)
+	cmdUpdatePrice := command.NewUpdatePriceCommand(tokenPriceUpdateService)
+	// controllers
+	tokenController := v1.NewTokensController(tokenPriceUpdateService)
+	currencyController := v1.NewCurrencyController(fiatPriceUpdateService)
 
-	server := fiber.NewServer(priceController)
+	server := fiber.NewServer(currencyController, tokenController)
 
 	go func(server *fiber.Server, cfg config.HTTPServerConfig) {
 		server.Start(cfg)
