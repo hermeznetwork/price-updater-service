@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"log"
+	"os"
+
 	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/spf13/cobra"
 )
@@ -16,12 +19,14 @@ func init() {
 	cobra.OnInitialize(baseSetup)
 
 	rootCmd.AddCommand(serverCmd)
+	rootCmd.AddCommand(updaterCmd)
 }
 
 func Execute() {
 	// TODO: remove panic
 	if err := rootCmd.Execute(); err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
+		os.Exit(1)
 	}
 }
 

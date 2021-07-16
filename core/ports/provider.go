@@ -11,6 +11,6 @@ type PriceProvider interface {
 }
 
 type ConfigProviderRepository interface {
-	SaveConfig() error
-	LoadConfig() (domain.PriceProvider, error)
+	SaveConfig(provider string, data domain.PriceProvider) error
+	LoadConfig(provider string) (domain.PriceProvider, error)
 }

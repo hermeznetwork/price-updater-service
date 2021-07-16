@@ -1,6 +1,7 @@
 package bbolt
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
@@ -11,17 +12,46 @@ type ConfigProviderRepository struct {
 	conn *Connection
 }
 
+type bboltPriceProvider struct {
+	Provider string          `json:"provider"`
+	Config   map[uint]string `json:"config"`
+}
+
 func NewConfigProviderRepository(conn *Connection) ports.ConfigProviderRepository {
 	return &ConfigProviderRepository{
 		conn: conn,
 	}
 }
 
-func (cp *ConfigProviderRepository) SaveConfig() error {
-	return errors.New("not implemented yet")
+func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.PriceProvider) error {
+	tx, err := cp.conn.db.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	model := bboltPriceProvider{
+		Provider: data.Provider,
+		Config:   data.MappingBetweenNetwork,
+	}
+
+	bkt, err := tx.CreateBucketIfNotExists([]byte("configProvider"))
+	if err != nil {
+		return err
+	}
+	buf, err := json.Marshal(model)
+	if err != nil {
+		return err
+	}
+	err = bkt.Put([]byte(provider), []byte(buf))
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
-func (cp *ConfigProviderRepository) LoadConfig() (domain.PriceProvider, error) {
+func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PriceProvider, error) {
 	var pp domain.PriceProvider
 	tx, err := cp.conn.db.Begin(true)
 	if err != nil {
@@ -34,9 +64,16 @@ func (cp *ConfigProviderRepository) LoadConfig() (domain.PriceProvider, error) {
 		return pp, err
 	}
 
-	v := bucket.Get([]byte("coingecko"))
-	if len(v) == 0 {
+	providerConfigRaw := bucket.Get([]byte(provider))
+	if providerConfigRaw == nil {
 		return pp, errors.New("provider not found")
 	}
+	var bpp bboltPriceProvider
+	err = json.Unmarshal(providerConfigRaw, &bpp)
+	if err != nil {
+		return pp, err
+	}
+	pp.Provider = bpp.Provider
+	pp.MappingBetweenNetwork = bpp.Config
 	return pp, err
 }
