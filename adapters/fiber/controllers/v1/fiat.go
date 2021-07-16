@@ -55,13 +55,7 @@ func domainToHttpCurrencies(prices []domain.FiatPrice) []fiatOut {
 	var returnTokens []fiatOut
 
 	for _, p := range prices {
-		nTkOut := fiatOut{
-			Currency:     p.Currency,
-			BaseCurrency: p.BaseCurrency,
-			Price:        p.Price,
-			LastUpdate:   p.LastUpdate,
-		}
-		returnTokens = append(returnTokens, nTkOut)
+		returnTokens = append(returnTokens, domainToHttpCurrency(p))
 	}
 	return returnTokens
 }

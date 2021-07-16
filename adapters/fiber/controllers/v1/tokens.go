@@ -72,18 +72,7 @@ func domainToHttpTokens(prices []domain.Token) []tokenOut {
 	var returnTokens []tokenOut
 
 	for _, p := range prices {
-		nTkOut := tokenOut{
-			ItemID:           p.ItemID,
-			ID:               p.ID,
-			EthereumBlockNum: p.BlockNum,
-			EthereumAddress:  p.Address,
-			Name:             p.Name,
-			Symbol:           p.Symbol,
-			Decimals:         p.Decimals,
-			Usd:              p.Price,
-			UsdUpdate:        p.UsdUpdate,
-		}
-		returnTokens = append(returnTokens, nTkOut)
+		returnTokens = append(returnTokens, domainToHttpToken(p))
 	}
 	return returnTokens
 }
