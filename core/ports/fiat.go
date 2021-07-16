@@ -11,7 +11,8 @@ type FiatProvider interface {
 }
 
 type FiatPriceRepository interface {
-	GetFiatPrices(ctx context.Context, currency string) ([]domain.FiatPrice, error)
+	GetFiatPrice(ctx context.Context, currency string) (domain.FiatPrice, error)
+	GetFiatPrices(ctx context.Context, baseCurrency string) ([]domain.FiatPrice, error)
 	CreateFiatPrice(ctx context.Context, base_currency, currency string, price float64) error
 	UpdateFiatPrice(ctx context.Context, base_currency, currency string, price float64) error
 }
