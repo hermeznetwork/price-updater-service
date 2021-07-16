@@ -80,14 +80,7 @@ func getPriceFromPairsInfo(pairAddress, currentToken common.Address, conn *ethcl
 	var tokenSymbolB string
 
 	// Sometimes the Pair smart contract from Uniswap put in struct the tokens
-	// in a different position UTCD in token0, BAT on token1 and vice versa.
-	tokenDecimalsA = tokenDecimals0
-	tokenDecimalsB = tokenDecimals1
-	tokenReserveA = *reserve0
-	tokenReserveB = *reserve1
-	tokenSymbolA = tokenSymbol0
-	tokenSymbolB = tokenSymbol1
-
+	// in a different position: UTCD in token0, BAT on token1 and vice versa.
 	if currentToken != addressToken1 {
 		tokenDecimalsA = tokenDecimals1
 		tokenDecimalsB = tokenDecimals0
@@ -95,8 +88,14 @@ func getPriceFromPairsInfo(pairAddress, currentToken common.Address, conn *ethcl
 		tokenReserveB = *reserve0
 		tokenSymbolA = tokenSymbol1
 		tokenSymbolB = tokenSymbol0
+	} else {
+		tokenDecimalsA = tokenDecimals0
+		tokenDecimalsB = tokenDecimals1
+		tokenReserveA = *reserve0
+		tokenReserveB = *reserve1
+		tokenSymbolA = tokenSymbol0
+		tokenSymbolB = tokenSymbol1
 	}
-
 	amountIn := new(big.Int)
 	expTokenA := big.NewInt(int64(tokenDecimalsA))
 	amountIn.Exp(big.NewInt(10), expTokenA, nil)
@@ -141,7 +140,8 @@ func getAmountOut(amountInt *big.Int, reserveIn big.Int, reserveOut big.Int) (*b
 		return zeroReturn, errors.New("UniswapV2Library: INSUFFICIENT_LIQUIDITY")
 	}
 
-	amountInWithFee := new(big.Int).Mul(amountInt, big.NewInt(997))
+	fee := big.NewInt(997)
+	amountInWithFee := new(big.Int).Mul(amountInt, fee)
 	numerator := new(big.Int).Mul(amountInWithFee, &reserveOut)
 	denominator := new(big.Int).Add(new(big.Int).Mul(&reserveIn, big.NewInt(1000)), amountInWithFee)
 
