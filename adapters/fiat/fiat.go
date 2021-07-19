@@ -69,6 +69,5 @@ func (c *Client) GetPrices(ctx context.Context) (map[string]float64, error) {
 	}
 
 	rates = fiatResp.Rates
-	fmt.Printf("%+v\n", rates)
 	return rates, nil
 }

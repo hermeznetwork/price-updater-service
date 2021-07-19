@@ -17,6 +17,6 @@ func NewUpdatePriceCommand(srv *services.PriceUpdaterService) *UpdatePriceComman
 }
 
 func (cmd *UpdatePriceCommand) Execute() error {
-	log.Println("Executing UpdatePrices()")
+	log.Println("Executing Token UpdatePrices()")
 	return cmd.srv.UpdatePrices()
 }

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/signal"
 
@@ -36,17 +37,22 @@ func server(cfg config.Config) {
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
 	tokenProvider, err := priceSelector.CurrentProvider()
 	if err != nil {
-		log.Println("try get current provider: ", err.Error())
+		log.Println("try server start up", err.Error())
 		os.Exit(1)
 	}
+
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
+
 	// service
 	tokenPriceUpdateService := services.NewPriceUpdaterService(tokenProvider, priceRepository, ctx)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
+
 	// command
 	cmdUpdatePrice := command.NewUpdatePriceCommand(tokenPriceUpdateService)
+	cmdUpdateFiatePrice := command.NewUpdateFiatPriceCommand(fiatPriceUpdateService)
+
 	// controllers
 	tokenController := v1.NewTokensController(tokenPriceUpdateService)
 	currencyController := v1.NewCurrencyController(fiatPriceUpdateService)
@@ -57,11 +63,15 @@ func server(cfg config.Config) {
 		server.Start(cfg)
 	}(server, cfg.HTTPServer)
 
-	bg := background.NewBackground(ctx, cmdUpdatePrice)
-	bg.AddWg(1)
-	go bg.StartUpdateProcess()
+	bgFiat := background.NewBackground(ctx, cmdUpdateFiatePrice)
+	bgToken := background.NewBackground(ctx, cmdUpdatePrice)
+	bgFiat.AddWg(1)
+	bgToken.AddWg(1)
+	go bgToken.StartUpdateProcess()
+	go bgFiat.StartUpdateProcess()
 	waitSigInt()
-	bg.Stop()
+	bgToken.Stop()
+	bgFiat.Stop()
 }
 
 func waitSigInt() {

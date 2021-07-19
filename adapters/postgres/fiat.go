@@ -29,14 +29,14 @@ func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string
 
 func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, baseCurrency string) ([]domain.FiatPrice, error) {
 	var fiatPrices []domain.FiatPrice
-	stmt, err := f.conn.db.Query("SELECT currency, base_currency, price FROM fiat WHERE base_currency = $1;", baseCurrency)
+	stmt, err := f.conn.db.Query("SELECT currency, base_currency, price, last_update FROM fiat WHERE base_currency = $1;", baseCurrency)
 	if err != nil {
 		return fiatPrices, err
 	}
 
 	for stmt.Next() {
 		fp := domain.FiatPrice{}
-		err = stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price)
+		err = stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price, &fp.LastUpdate)
 		if err != nil {
 			return fiatPrices, err
 		}
