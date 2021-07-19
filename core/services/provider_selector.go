@@ -22,19 +22,19 @@ func NewProviderSelectorService(brepo ports.ConfigProviderRepository, cfg config
 	}
 }
 
-func (s *ProviderSelectorService) CurrentProvider() (ports.PriceProvider, error) {
-	provider, err := s.brepo.CurrentProvider()
+func (selector *ProviderSelectorService) CurrentProvider() (ports.PriceProvider, error) {
+	provider, err := selector.brepo.CurrentProvider()
 	if err != nil {
 		log.Println("try get the current provider: ", err.Error())
 		return nil, err
 	}
 	log.Println("Get the current provider:", provider)
 
-	return s.Select(provider)
+	return selector.Select(provider)
 }
 
-func (s *ProviderSelectorService) Select(name string) (ports.PriceProvider, error) {
-	configProvidiver, err := s.brepo.LoadConfig(name)
+func (selector *ProviderSelectorService) Select(name string) (ports.PriceProvider, error) {
+	configProvidiver, err := selector.brepo.LoadConfig(name)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (s *ProviderSelectorService) Select(name string) (ports.PriceProvider, erro
 	case "coingecko":
 		return coingecko.NewClient(configProvidiver.MappingBetweenNetwork), nil
 	case "uniswap":
-		return uniswap.NewClient(s.cfg.EthConfig)
+		return uniswap.NewClient(selector.cfg.EthConfig)
 	default:
 		log.Println("provider not found")
 		return nil, nil
