@@ -37,7 +37,7 @@ func server(cfg config.Config) {
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
 	tokenProvider, err := priceSelector.CurrentProvider()
 	if err != nil {
-		log.Println("try server start up", err.Error())
+		log.Println("try server start up:", err.Error())
 		os.Exit(1)
 	}
 

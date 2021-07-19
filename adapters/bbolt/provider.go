@@ -3,6 +3,7 @@ package bbolt
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
@@ -84,7 +85,7 @@ func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PricePro
 
 	providerConfigRaw := bucket.Get([]byte(provider))
 	if providerConfigRaw == nil {
-		return pp, errors.New("provider not found")
+		return pp, fmt.Errorf("configuration to provider %s not found", provider)
 	}
 	var bpp bboltPriceProvider
 	err = json.Unmarshal(providerConfigRaw, &bpp)
