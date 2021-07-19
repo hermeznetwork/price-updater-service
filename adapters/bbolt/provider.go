@@ -77,3 +77,23 @@ func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PricePro
 	pp.MappingBetweenNetwork = bpp.Config
 	return pp, err
 }
+
+func (cp *ConfigProviderRepository) ChangeRunningProvider(provider string) error {
+	tx, err := cp.conn.db.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	bkt, err := tx.CreateBucketIfNotExists([]byte("configProvider"))
+	if err != nil {
+		return err
+	}
+
+	err = bkt.Put([]byte("running"), []byte(provider))
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}

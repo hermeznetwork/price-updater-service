@@ -20,10 +20,10 @@ func init() {
 
 	rootCmd.AddCommand(serverCmd)
 	rootCmd.AddCommand(updaterCmd)
+	rootCmd.AddCommand(changeProviderCmd)
 }
 
 func Execute() {
-	// TODO: remove panic
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err.Error())
 		os.Exit(1)

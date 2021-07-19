@@ -22,3 +22,7 @@ func (c *ConfigUpdaterService) LoadConfig(provider string) (domain.PriceProvider
 func (c *ConfigUpdaterService) UpdateConfig(pr *domain.PriceProvider) error {
 	return c.cpr.SaveConfig(pr.Provider, *pr)
 }
+
+func (c *ConfigUpdaterService) ChangeRunningProvider(provider string) error {
+	return c.cpr.ChangeRunningProvider(provider)
+}
