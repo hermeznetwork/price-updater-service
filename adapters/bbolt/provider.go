@@ -29,7 +29,7 @@ func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
 		return "", err
 	}
 
-	bkt, err := tx.CreateBucketIfNotExists([]byte("configProvider"))
+	bkt, err := tx.CreateBucketIfNotExists([]byte("runningProvider"))
 	if err != nil {
 		return "", err
 	}
@@ -38,8 +38,7 @@ func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
 	if currentProvider == nil {
 		return "", errors.New("there no provider running")
 	}
-
-	return string(currentProvider), nil
+	return string(currentProvider), tx.Commit()
 }
 
 func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.PriceProvider) error {
@@ -94,7 +93,7 @@ func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PricePro
 	}
 	pp.Provider = bpp.Provider
 	pp.MappingBetweenNetwork = bpp.Config
-	return pp, err
+	return pp, tx.Commit()
 }
 
 func (cp *ConfigProviderRepository) ChangeRunningProvider(provider string) error {
@@ -104,7 +103,7 @@ func (cp *ConfigProviderRepository) ChangeRunningProvider(provider string) error
 	}
 	defer tx.Rollback()
 
-	bkt, err := tx.CreateBucketIfNotExists([]byte("configProvider"))
+	bkt, err := tx.CreateBucketIfNotExists([]byte("runningProvider"))
 	if err != nil {
 		return err
 	}
