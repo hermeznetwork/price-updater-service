@@ -23,6 +23,25 @@ func NewConfigProviderRepository(conn *Connection) ports.ConfigProviderRepositor
 	}
 }
 
+func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
+	tx, err := cp.conn.db.Begin(true)
+	if err != nil {
+		return "", err
+	}
+
+	bkt, err := tx.CreateBucketIfNotExists([]byte("configProvider"))
+	if err != nil {
+		return "", err
+	}
+
+	currentProvider := bkt.Get([]byte("running"))
+	if currentProvider == nil {
+		return "", errors.New("there no provider running")
+	}
+
+	return string(currentProvider), nil
+}
+
 func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.PriceProvider) error {
 	tx, err := cp.conn.db.Begin(true)
 	if err != nil {
