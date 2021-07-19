@@ -1,25 +1,21 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"io/fs"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
-	Mongo      MongoConfig
 	HTTPServer HTTPServerConfig
 	Postgres   PostgresConfig
 	EthConfig  EthConfig
 	Fiat       FiatConfig
+	Bbolt      BboltConfig
 }
 
 type FiatConfig struct {
 	APIKey string
-}
-
-type MongoConfig struct {
-	User     string
-	Password string
-	Host     string
-	Port     int
-	Database string
 }
 
 type PostgresConfig struct {
@@ -31,6 +27,11 @@ type PostgresConfig struct {
 	SslModeEnabled bool
 	MaxIdleConns   int
 	MaxOpenConns   int
+}
+
+type BboltConfig struct {
+	Location   string
+	Permission fs.FileMode
 }
 
 type HTTPServerConfig struct {
@@ -57,13 +58,6 @@ func Load() Config {
 	readDotEnvWithViper()
 
 	return Config{
-		Mongo: MongoConfig{
-			User:     viper.GetString("MONGO_USER"),
-			Password: viper.GetString("MONGO_PASSWORD"),
-			Host:     viper.GetString("MONGO_HOST"),
-			Port:     viper.GetInt("MONGO_PORT"),
-			Database: viper.GetString("MONGO_DATABASE"),
-		},
 		HTTPServer: HTTPServerConfig{
 			Host: viper.GetString("HTTP_HOST"),
 			Port: viper.GetInt("HTTP_PORT"),
@@ -82,9 +76,13 @@ func Load() Config {
 			EthNetwork:  viper.GetString("ETH_NETWORK"),
 			HezRollup:   viper.GetString("ETH_HEZ_ROLLUP"),
 			UsdtAddress: viper.GetString("ETH_USDT_ADDRESS"),
-    },
+		},
 		Fiat: FiatConfig{
 			APIKey: viper.GetString("FIAT_API_KEY"),
+		},
+		Bbolt: BboltConfig{
+			Location:   viper.GetString("BBOLT_LOCATION"),
+			Permission: fs.FileMode(viper.GetInt("BBOLD_PERMISSION")),
 		},
 	}
 }

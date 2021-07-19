@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -25,7 +23,7 @@ const (
 
 type Client struct {
 	cli       *sling.Sling
-	addresses []string
+	addresses map[uint]string
 }
 
 func getHTTPTransport() *http.Client {
@@ -38,7 +36,7 @@ func getHTTPTransport() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func NewClient(addresses []string) ports.PriceProvider {
+func NewClient(addresses map[uint]string) ports.PriceProvider {
 	slingCli := sling.New().Base(baseUrl).Client(getHTTPTransport())
 
 	return &Client{
@@ -56,13 +54,7 @@ func getUrlByAdressValue(address string) string {
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 	prices := make([]map[uint]float64, len(c.addresses))
-	for _, addressRaw := range c.addresses {
-		addressSplited := strings.Split(addressRaw, "=")
-		tokenID, err := strconv.Atoi(addressSplited[0])
-		if err != nil {
-			continue
-		}
-		address := addressSplited[1]
+	for tokenID, address := range c.addresses {
 		url := getUrlByAdressValue(address)
 		req, err := c.cli.New().Get(url).Request()
 		if err != nil {
@@ -85,7 +77,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		result := make(map[uint]float64)
 		var key uint
 		if itemResponseKey != "ethereum" {
-			key = uint(tokenID)
+			key = tokenID
 		}
 		result[key] = value
 		prices = append(prices, result)

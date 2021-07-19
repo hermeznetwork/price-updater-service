@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -26,7 +24,7 @@ const (
 
 type Client struct {
 	cli     *sling.Sling
-	symbols []string
+	symbols map[uint]string
 }
 
 func getHTTPTransport() *http.Client {
@@ -39,7 +37,7 @@ func getHTTPTransport() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func NewClient(symbols []string) ports.PriceProvider {
+func NewClient(symbols map[uint]string) ports.PriceProvider {
 	slingCli := sling.New().Base(baseUrl).Client(getHTTPTransport())
 
 	return &Client{
@@ -51,13 +49,7 @@ func NewClient(symbols []string) ports.PriceProvider {
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 	prices := make([]map[uint]float64, len(c.symbols))
 
-	for _, symbolRaw := range c.symbols {
-		symbolSplited := strings.Split(symbolRaw, "=")
-		tokenID, err := strconv.Atoi(symbolSplited[0])
-		if err != nil {
-			return prices, err
-		}
-		symbol := symbolSplited[1]
+	for tokenID, symbol := range c.symbols {
 		url := URL + symbol + URLExtraParams
 		req, err := c.cli.New().Get(url).Request()
 		if err != nil {
@@ -81,7 +73,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		if res.StatusCode != http.StatusOK {
 			return prices, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
 		}
-		result[uint(tokenID)] = value
+		result[tokenID] = value
 
 		prices = append(prices, result)
 	}
