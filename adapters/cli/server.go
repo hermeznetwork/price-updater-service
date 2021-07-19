@@ -6,7 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/background"
-	"github.com/hermeznetwork/price-updater-service/adapters/bitfinex"
+	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
 	"github.com/hermeznetwork/price-updater-service/adapters/command"
 	"github.com/hermeznetwork/price-updater-service/adapters/fiat"
 	"github.com/hermeznetwork/price-updater-service/adapters/fiber"
@@ -27,16 +27,23 @@ var serverCmd = &cobra.Command{
 func server(cfg config.Config) {
 	ctx := context.Background()
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
+	bboltConn := bbolt.NewConnection(cfg.Bbolt)
+	configProviderRepo := bbolt.NewConfigProviderRepository(bboltConn)
+
+	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
 
 	// providers
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
-	bitfitexSymbols := []string{"0=ETH", "2=UST", "9=SUSHI", "5=WBT"}
-	bitfinexClient := bitfinex.NewClient(bitfitexSymbols)
+	tokenProvider, err := priceSelector.CurrentProvider()
+	if err != nil {
+		log.Println("try get current provider: ", err.Error())
+		os.Exit(1)
+	}
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
 	// service
-	tokenPriceUpdateService := services.NewPriceUpdaterService(bitfinexClient, priceRepository, ctx)
+	tokenPriceUpdateService := services.NewPriceUpdaterService(tokenProvider, priceRepository, ctx)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 	// command
 	cmdUpdatePrice := command.NewUpdatePriceCommand(tokenPriceUpdateService)

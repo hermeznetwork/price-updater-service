@@ -32,7 +32,7 @@ func changeProvider(cfg config.Config) {
 	bboltCon := bbolt.NewConnection(cfg.Bbolt)
 	configProviderRepository := bbolt.NewConfigProviderRepository(bboltCon)
 	configUpdaterServices := services.NewConfigUpdaterServices(configProviderRepository)
-	changeProviderCmd := command.NewChangeProviderCommand(provider, configUpdaterServices)
+	changeProviderCmd := command.NewChangeProviderCommand(changeProviderName, configUpdaterServices)
 	err := changeProviderCmd.Execute()
 	if err != nil {
 		log.Println(err.Error())
