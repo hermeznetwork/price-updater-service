@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "c2bca0a8-247e-411d-b076-fd3c9871e6e4",
+		"name": "Price Updater Collections",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get tokens prices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://priceupdater.marioidival.xyz/v1/tokens",
+					"protocol": "https",
+					"host": [
+						"priceupdater",
+						"marioidival",
+						"xyz"
+					],
+					"path": [
+						"v1",
+						"tokens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get token price",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://priceupdater.marioidival.xyz/v1/tokens/1",
+					"protocol": "https",
+					"host": [
+						"priceupdater",
+						"marioidival",
+						"xyz"
+					],
+					"path": [
+						"v1",
+						"tokens",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get currencies prices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://priceupdater.marioidival.xyz/v1/currencies",
+					"protocol": "https",
+					"host": [
+						"priceupdater",
+						"marioidival",
+						"xyz"
+					],
+					"path": [
+						"v1",
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get currency price",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://priceupdater.marioidival.xyz/v1/currencies/JPY",
+					"protocol": "https",
+					"host": [
+						"priceupdater",
+						"marioidival",
+						"xyz"
+					],
+					"path": [
+						"v1",
+						"currencies",
+						"JPY"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
