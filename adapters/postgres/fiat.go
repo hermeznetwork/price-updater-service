@@ -20,8 +20,8 @@ func NewFiatPricesRepository(conn *Connection) ports.FiatPriceRepository {
 
 func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string) (domain.FiatPrice, error) {
 	var fp domain.FiatPrice
-	stmt := f.conn.db.QueryRowContext(ctx, "SELECT currency, base_currency, price FROM fiat WHERE currency = $1;", currency)
-	err := stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price)
+	stmt := f.conn.db.QueryRowContext(ctx, "SELECT currency, base_currency, price, last_update FROM fiat WHERE currency = $1;", currency)
+	err := stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price, &fp.LastUpdate)
 	if err == sql.ErrNoRows {
 		return fp, nil
 	}
