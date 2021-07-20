@@ -63,8 +63,8 @@ func server(cfg config.Config) {
 		server.Start(cfg)
 	}(server, cfg.HTTPServer)
 
-	bgFiat := background.NewBackground(ctx, cmdUpdateFiatePrice)
-	bgToken := background.NewBackground(ctx, cmdUpdatePrice)
+	bgFiat := background.NewBackground(ctx, cmdUpdateFiatePrice, cfg.ProjectConfig)
+	bgToken := background.NewBackground(ctx, cmdUpdatePrice, cfg.ProjectConfig)
 	bgFiat.AddWg(1)
 	bgToken.AddWg(1)
 	go bgToken.StartUpdateProcess()
