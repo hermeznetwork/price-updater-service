@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/services"
@@ -24,9 +26,17 @@ func NewCurrencyController(s *services.FiatUpdaterService) *CurrencyController {
 }
 
 func (p *CurrencyController) GetFiatPrice(ctx *fiber.Ctx) error {
-	price, err := p.svc.GetPrice(ctx.Params("currency"))
+	currency := ctx.Params("currency")
+	price, err := p.svc.GetPrice(currency)
+	if price.BaseCurrency == "" {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": fmt.Sprintf("currency %s not found", currency),
+		})
+	}
 	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 	return ctx.JSON(domainToHttpCurrency(price))
 }
@@ -35,7 +45,9 @@ func (p *CurrencyController) GetFiatPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
 	prices, err := p.svc.GetPrices()
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 	return ctx.JSON(fiber.Map{
 		"currencies": domainToHttpCurrencies(prices),

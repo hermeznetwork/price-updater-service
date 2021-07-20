@@ -34,11 +34,20 @@ func (p *TokensController) GetTokenPrice(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
 	tokenID, err := strconv.Atoi(ctx.Params("token_id"))
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).SendString(err.Error())
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 	price, err := p.svc.GetToken(uint(tokenID))
+	if price.UsdUpdate == "" {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "token not found",
+		})
+	}
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 	return ctx.JSON(domainToHttpToken(price))
 }
@@ -47,7 +56,9 @@ func (p *TokensController) GetTokenPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
 	prices, err := p.svc.GetTokens()
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 	return ctx.JSON(fiber.Map{
 		"tokens": domainToHttpTokens(prices),

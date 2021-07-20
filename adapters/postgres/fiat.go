@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
@@ -21,6 +22,9 @@ func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string
 	var fp domain.FiatPrice
 	stmt := f.conn.db.QueryRowContext(ctx, "SELECT currency, base_currency, price FROM fiat WHERE currency = $1;", currency)
 	err := stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price)
+	if err == sql.ErrNoRows {
+		return fp, nil
+	}
 	if err != nil {
 		return fp, err
 	}
