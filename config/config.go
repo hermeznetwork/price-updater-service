@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/fs"
 	"time"
 
 	"github.com/spf13/viper"
@@ -32,8 +31,7 @@ type PostgresConfig struct {
 }
 
 type BboltConfig struct {
-	Location   string
-	Permission fs.FileMode
+	Location string
 }
 
 type HTTPServerConfig struct {
@@ -88,8 +86,7 @@ func Load() Config {
 			APIKey: viper.GetString("FIAT_API_KEY"),
 		},
 		Bbolt: BboltConfig{
-			Location:   viper.GetString("BBOLT_LOCATION"),
-			Permission: fs.FileMode(viper.GetInt("BBOLD_PERMISSION")),
+			Location: viper.GetString("BBOLT_LOCATION"),
 		},
 		ProjectConfig: Main{
 			TimeToUpdate: viper.GetDuration("MAIN_TIME_TO_UPDATE_PRICES"),
