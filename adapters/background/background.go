@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
 )
 
@@ -14,15 +15,17 @@ type Background struct {
 	wg     sync.WaitGroup
 	cancel context.CancelFunc
 	cmd    ports.Command
+	cfg    config.Main
 }
 
-func NewBackground(ctx context.Context, cmd ports.Command) *Background {
+func NewBackground(ctx context.Context, cmd ports.Command, cfg config.Main) *Background {
 	cCtx, cancel := context.WithCancel(ctx)
 	return &Background{
 		ctx:    cCtx,
 		cancel: cancel,
 		wg:     sync.WaitGroup{},
 		cmd:    cmd,
+		cfg:    cfg,
 	}
 }
 
@@ -33,7 +36,7 @@ func (b *Background) StartUpdateProcess() {
 			log.Println("graceful shutdown...")
 			b.wg.Done()
 			return
-		case <-time.After(30 * time.Second):
+		case <-time.After(b.cfg.TimeToUpdate):
 			log.Println("Executing...")
 			if err := b.cmd.Execute(); err != nil {
 				log.Println("error while try executing: ", err.Error())

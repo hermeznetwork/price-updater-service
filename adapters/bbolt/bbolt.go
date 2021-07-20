@@ -11,7 +11,7 @@ type Connection struct {
 
 func NewConnection(cfg config.BboltConfig) *Connection {
 	// FIXME: This way to give permission not works.
-	db, err := bolt.Open(cfg.Location, cfg.Permission, nil)
+	db, err := bolt.Open(cfg.Location, 0644, nil)
 	if err != nil {
 		panic(err.Error())
 	}

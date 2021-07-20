@@ -1,17 +1,18 @@
 package config
 
 import (
-	"io/fs"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	HTTPServer HTTPServerConfig
-	Postgres   PostgresConfig
-	EthConfig  EthConfig
-	Fiat       FiatConfig
-	Bbolt      BboltConfig
+	HTTPServer    HTTPServerConfig
+	Postgres      PostgresConfig
+	EthConfig     EthConfig
+	Fiat          FiatConfig
+	Bbolt         BboltConfig
+	ProjectConfig Main
 }
 
 type FiatConfig struct {
@@ -30,8 +31,7 @@ type PostgresConfig struct {
 }
 
 type BboltConfig struct {
-	Location   string
-	Permission fs.FileMode
+	Location string
 }
 
 type HTTPServerConfig struct {
@@ -45,9 +45,14 @@ type EthConfig struct {
 	UsdtAddress string
 }
 
+type Main struct {
+	TimeToUpdate time.Duration
+}
+
 func readDotEnvWithViper() {
 	viper.AutomaticEnv()
 	viper.SetConfigFile(".env")
+	viper.SetDefault("MAIN_TIME_TO_UPDATE_PRICES", "30s")
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(".env file not found")
@@ -81,8 +86,10 @@ func Load() Config {
 			APIKey: viper.GetString("FIAT_API_KEY"),
 		},
 		Bbolt: BboltConfig{
-			Location:   viper.GetString("BBOLT_LOCATION"),
-			Permission: fs.FileMode(viper.GetInt("BBOLD_PERMISSION")),
+			Location: viper.GetString("BBOLT_LOCATION"),
+		},
+		ProjectConfig: Main{
+			TimeToUpdate: viper.GetDuration("MAIN_TIME_TO_UPDATE_PRICES"),
 		},
 	}
 }

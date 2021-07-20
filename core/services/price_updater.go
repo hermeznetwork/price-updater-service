@@ -14,7 +14,7 @@ type PriceUpdaterService struct {
 	ctx context.Context
 }
 
-func NewPriceUpdaterService(provider ports.PriceProvider, tr ports.TokenRepository, ctx context.Context) *PriceUpdaterService {
+func NewPriceUpdaterService(ctx context.Context, provider ports.PriceProvider, tr ports.TokenRepository) *PriceUpdaterService {
 	return &PriceUpdaterService{
 		pr:  provider,
 		tr:  tr,

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
@@ -35,6 +36,9 @@ func (t *TokenRepository) GetToken(ctx context.Context, tokenID uint) (domain.To
 	stmt := t.conn.db.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, usd_update, name, symbol, usd, eth_addr FROM token WHERE token_id  = $1", tokenID)
 	tdb := tokenFromDB{}
 	err := stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
+	if err == sql.ErrNoRows {
+		return token, nil
+	}
 	if err != nil {
 		return token, err
 	}
