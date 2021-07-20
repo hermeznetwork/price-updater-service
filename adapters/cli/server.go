@@ -46,7 +46,7 @@ func server(cfg config.Config) {
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
 
 	// service
-	tokenPriceUpdateService := services.NewPriceUpdaterService(tokenProvider, priceRepository, ctx)
+	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProvider, priceRepository)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 
 	// command
