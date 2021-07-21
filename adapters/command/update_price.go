@@ -7,16 +7,16 @@ import (
 )
 
 type UpdatePriceCommand struct {
-	srv *services.PriceUpdaterService
+	srv *services.ProviderUpdateOrchestratorService
 }
 
-func NewUpdatePriceCommand(srv *services.PriceUpdaterService) *UpdatePriceCommand {
+func NewUpdatePriceCommand(srv *services.ProviderUpdateOrchestratorService) *UpdatePriceCommand {
 	return &UpdatePriceCommand{
 		srv: srv,
 	}
 }
 
 func (cmd *UpdatePriceCommand) Execute() error {
-	log.Println("Executing Token UpdatePrices()")
-	return cmd.srv.UpdatePrices()
+	log.Println("Executing UpdatePrices()")
+	return cmd.srv.LoadAndExecutePriceProvider()
 }

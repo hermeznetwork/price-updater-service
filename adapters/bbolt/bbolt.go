@@ -5,15 +5,25 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
+const defaultPermission = 0644
+
 type Connection struct {
-	db *bolt.DB
+	db  *bolt.DB
+	cfg config.BboltConfig
 }
 
 func NewConnection(cfg config.BboltConfig) *Connection {
-	// FIXME: This way to give permission not works.
-	db, err := bolt.Open(cfg.Location, 0644, nil)
+	return &Connection{db: nil, cfg: cfg}
+}
+
+func (c *Connection) Start() {
+	db, err := bolt.Open(c.cfg.Location, defaultPermission, nil)
+	c.db = db
 	if err != nil {
 		panic(err.Error())
 	}
-	return &Connection{db: db}
+}
+
+func (c *Connection) End() {
+	c.db.Close()
 }

@@ -48,10 +48,9 @@ func server(cfg config.Config) {
 	// service
 	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProvider, priceRepository)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
-
+	orchestrator := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
 	// command
-	cmdUpdatePrice := command.NewUpdatePriceCommand(tokenPriceUpdateService)
-	cmdUpdateFiatePrice := command.NewUpdateFiatPriceCommand(fiatPriceUpdateService)
+	cmdUpdatePrice := command.NewUpdatePriceCommand(orchestrator)
 
 	// controllers
 	tokenController := v1.NewTokensController(tokenPriceUpdateService)
@@ -63,15 +62,11 @@ func server(cfg config.Config) {
 		server.Start(cfg)
 	}(server, cfg.HTTPServer)
 
-	bgFiat := background.NewBackground(ctx, cmdUpdateFiatePrice, cfg.ProjectConfig)
 	bgToken := background.NewBackground(ctx, cmdUpdatePrice, cfg.ProjectConfig)
-	bgFiat.AddWg(1)
 	bgToken.AddWg(1)
 	go bgToken.StartUpdateProcess()
-	go bgFiat.StartUpdateProcess()
 	waitSigInt()
 	bgToken.Stop()
-	bgFiat.Stop()
 }
 
 func waitSigInt() {
