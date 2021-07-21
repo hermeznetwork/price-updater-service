@@ -1,22 +1,39 @@
 package services
 
-type UpdateOrchestratorService struct {
-	pus *PriceUpdaterService
-	fus *FiatUpdaterService
+import "log"
+
+type ProviderUpdateOrchestratorService struct {
+	providerSelector *ProviderSelectorService
+	priceUpdater     *PriceUpdaterService
+	fiatUpdater      *FiatUpdaterService
 }
 
-func NewOrchestratorService(pus *PriceUpdaterService, fus *FiatUpdaterService) *UpdateOrchestratorService {
-	return &UpdateOrchestratorService{
-		pus: pus,
-		fus: fus,
+func NewPriceUpdateOrchestratorService(ps *ProviderSelectorService, pus *PriceUpdaterService, fus *FiatUpdaterService) *ProviderUpdateOrchestratorService {
+	return &ProviderUpdateOrchestratorService{
+		providerSelector: ps,
+		priceUpdater:     pus,
+		fiatUpdater:      fus,
 	}
 }
 
-func (orchestrator *UpdateOrchestratorService) UpdatePrices() error {
-	err := orchestrator.pus.UpdatePrices()
+func (orchestrator *ProviderUpdateOrchestratorService) UpdatePrices() error {
+	log.Println("Executing provider update")
+	err := orchestrator.priceUpdater.UpdatePrices()
 	if err != nil {
 		return err
 	}
 
-	return orchestrator.fus.UpdatePrices()
+	log.Println("Executing fiat update")
+	return orchestrator.fiatUpdater.UpdatePrices()
+}
+
+func (orchestrator *ProviderUpdateOrchestratorService) LoadAndExecutePriceProvider() error {
+	log.Println("Check if provider has changed")
+	provider, err := orchestrator.providerSelector.CurrentProvider()
+	if err != nil {
+		log.Println("fail to retrive current provider: ", err.Error())
+		return err
+	}
+	orchestrator.priceUpdater.LoadProvider(provider)
+	return orchestrator.UpdatePrices()
 }

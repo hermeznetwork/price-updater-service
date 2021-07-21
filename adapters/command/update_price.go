@@ -7,10 +7,10 @@ import (
 )
 
 type UpdatePriceCommand struct {
-	srv *services.UpdateOrchestratorService
+	srv *services.ProviderUpdateOrchestratorService
 }
 
-func NewUpdatePriceCommand(srv *services.UpdateOrchestratorService) *UpdatePriceCommand {
+func NewUpdatePriceCommand(srv *services.ProviderUpdateOrchestratorService) *UpdatePriceCommand {
 	return &UpdatePriceCommand{
 		srv: srv,
 	}
@@ -18,5 +18,5 @@ func NewUpdatePriceCommand(srv *services.UpdateOrchestratorService) *UpdatePrice
 
 func (cmd *UpdatePriceCommand) Execute() error {
 	log.Println("Executing UpdatePrices()")
-	return cmd.srv.UpdatePrices()
+	return cmd.srv.LoadAndExecutePriceProvider()
 }

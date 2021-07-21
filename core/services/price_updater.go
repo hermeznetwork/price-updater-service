@@ -22,6 +22,10 @@ func NewPriceUpdaterService(ctx context.Context, provider ports.PriceProvider, t
 	}
 }
 
+func (s *PriceUpdaterService) LoadProvider(provider ports.PriceProvider) {
+	s.pr = provider
+}
+
 func (s *PriceUpdaterService) GetToken(tokenID uint) (domain.Token, error) {
 	return s.tr.GetToken(s.ctx, tokenID)
 }
