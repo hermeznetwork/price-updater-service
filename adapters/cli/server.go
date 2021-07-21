@@ -48,9 +48,9 @@ func server(cfg config.Config) {
 	// service
 	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProvider, priceRepository)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
-	xibata := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
+	orchestrator := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
 	// command
-	cmdUpdatePrice := command.NewUpdatePriceCommand(xibata)
+	cmdUpdatePrice := command.NewUpdatePriceCommand(orchestrator)
 
 	// controllers
 	tokenController := v1.NewTokensController(tokenPriceUpdateService)

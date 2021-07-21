@@ -25,6 +25,8 @@ func NewConfigProviderRepository(conn *Connection) ports.ConfigProviderRepositor
 }
 
 func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
+	cp.conn.Start()
+	defer cp.conn.End()
 	tx, err := cp.conn.db.Begin(true)
 	if err != nil {
 		return "", err
@@ -43,6 +45,8 @@ func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
 }
 
 func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.PriceProvider) error {
+	cp.conn.Start()
+	defer cp.conn.End()
 	tx, err := cp.conn.db.Begin(true)
 	if err != nil {
 		return err
@@ -71,6 +75,8 @@ func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.Pric
 }
 
 func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PriceProvider, error) {
+	cp.conn.Start()
+	defer cp.conn.End()
 	var pp domain.PriceProvider
 	tx, err := cp.conn.db.Begin(true)
 	if err != nil {
@@ -98,6 +104,8 @@ func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PricePro
 }
 
 func (cp *ConfigProviderRepository) ChangeRunningProvider(provider string) error {
+	cp.conn.Start()
+	defer cp.conn.End()
 	tx, err := cp.conn.db.Begin(true)
 	if err != nil {
 		return err
