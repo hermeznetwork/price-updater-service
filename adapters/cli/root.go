@@ -10,6 +10,7 @@ import (
 
 var (
 	cfg     config.Config
+	err     error
 	rootCmd = &cobra.Command{
 		Use: "price-updater",
 	}
@@ -21,6 +22,19 @@ func init() {
 	rootCmd.AddCommand(serverCmd)
 	rootCmd.AddCommand(updaterCmd)
 	rootCmd.AddCommand(changeProviderCmd)
+
+	serverCmd.Flags().String("pg-user", "", "postgresql username")
+	serverCmd.Flags().String("pg-pass", "", "postgresql password")
+	serverCmd.Flags().String("pg-host", "", "postgresql host")
+	serverCmd.Flags().String("pg-dbname", "", "postgresql database name")
+	serverCmd.Flags().Int("pg-port", 5432, "postgresql port")
+	serverCmd.Flags().String("eth-network", "", "ethereum address")
+	serverCmd.Flags().String("fiat-key", "", "fiat api key")
+
+	serverCmd.MarkFlagRequired("pg-user")
+	serverCmd.MarkFlagRequired("pg-pass")
+	serverCmd.MarkFlagRequired("pg-host")
+	serverCmd.MarkFlagRequired("pg-dbname")
 }
 
 func Execute() {
@@ -31,5 +45,11 @@ func Execute() {
 }
 
 func baseSetup() {
-	cfg = config.Load()
+	cfg, err = config.LoadByEnv()
+	if err != nil {
+		cfg, err = config.LoadByFlags(serverCmd)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
 }
