@@ -8,27 +8,28 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	v1 "github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers/v1"
 	"github.com/hermeznetwork/price-updater-service/config"
-	"github.com/hermeznetwork/price-updater-service/core/ports"
+	"github.com/hermeznetwork/price-updater-service/core/services"
 )
 
 type Server struct {
 	fiber *fb.App
-	db    ports.MemoryRepository
+	pcr   *services.ProjectConfigService
 
 	*v1.CurrencyController
 	*v1.TokensController
 }
 
-func NewServer(cc *v1.CurrencyController, tc *v1.TokensController, db ports.MemoryRepository) *Server {
+func NewServer(cc *v1.CurrencyController, tc *v1.TokensController, pcr *services.ProjectConfigService) *Server {
 	server := &Server{
 		fiber:              fb.New(),
+		pcr:                pcr,
 		CurrencyController: cc,
 		TokensController:   tc,
 	}
 
 	server.fiber.Use(cors.New(cors.Config{
 		Next: func(ctx *fb.Ctx) bool {
-			origins, err := db.GetAllowOriginValues()
+			origins, err := server.pcr.LoadOriginValue()
 			if err != nil {
 				return false
 			}

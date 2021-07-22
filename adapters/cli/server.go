@@ -12,7 +12,6 @@ import (
 	"github.com/hermeznetwork/price-updater-service/adapters/fiat"
 	"github.com/hermeznetwork/price-updater-service/adapters/fiber"
 	v1 "github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers/v1"
-	"github.com/hermeznetwork/price-updater-service/adapters/memory"
 	"github.com/hermeznetwork/price-updater-service/adapters/postgres"
 	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/hermeznetwork/price-updater-service/core/services"
@@ -31,8 +30,8 @@ func server(cfg config.Config) {
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
 	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
-	memorydb := memory.NewMemoryDB()
-
+	/* memorydb := memory.NewMemoryDB()
+	 */
 	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
 
 	// providers
@@ -46,11 +45,13 @@ func server(cfg config.Config) {
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
+	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltConn)
 
 	// service
 	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProvider, priceRepository)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 	orchestrator := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
+	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
 	// command
 	cmdUpdatePrice := command.NewUpdatePriceCommand(orchestrator)
 
@@ -58,7 +59,7 @@ func server(cfg config.Config) {
 	tokenController := v1.NewTokensController(tokenPriceUpdateService)
 	currencyController := v1.NewCurrencyController(fiatPriceUpdateService)
 
-	server := fiber.NewServer(currencyController, tokenController, memorydb)
+	server := fiber.NewServer(currencyController, tokenController, projectConfigService)
 
 	go func(server *fiber.Server, cfg config.HTTPServerConfig) {
 		server.Start(cfg)
