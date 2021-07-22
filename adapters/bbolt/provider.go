@@ -9,7 +9,7 @@ import (
 	"github.com/hermeznetwork/price-updater-service/core/ports"
 )
 
-type ConfigProviderRepository struct {
+type ProviderConfigRepository struct {
 	conn *Connection
 }
 
@@ -18,13 +18,13 @@ type bboltPriceProvider struct {
 	Config   map[uint]string `json:"config"`
 }
 
-func NewConfigProviderRepository(conn *Connection) ports.ConfigProviderRepository {
-	return &ConfigProviderRepository{
+func NewProviderConfigRepository(conn *Connection) ports.ConfigProviderRepository {
+	return &ProviderConfigRepository{
 		conn: conn,
 	}
 }
 
-func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
+func (cp *ProviderConfigRepository) CurrentProvider() (string, error) {
 	cp.conn.Start()
 	defer cp.conn.End()
 	tx, err := cp.conn.db.Begin(true)
@@ -44,7 +44,7 @@ func (cp *ConfigProviderRepository) CurrentProvider() (string, error) {
 	return string(currentProvider), tx.Commit()
 }
 
-func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.PriceProvider) error {
+func (cp *ProviderConfigRepository) SaveConfig(provider string, data domain.PriceProvider) error {
 	cp.conn.Start()
 	defer cp.conn.End()
 	tx, err := cp.conn.db.Begin(true)
@@ -74,7 +74,7 @@ func (cp *ConfigProviderRepository) SaveConfig(provider string, data domain.Pric
 	return tx.Commit()
 }
 
-func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PriceProvider, error) {
+func (cp *ProviderConfigRepository) LoadConfig(provider string) (domain.PriceProvider, error) {
 	cp.conn.Start()
 	defer cp.conn.End()
 	var pp domain.PriceProvider
@@ -103,7 +103,7 @@ func (cp *ConfigProviderRepository) LoadConfig(provider string) (domain.PricePro
 	return pp, tx.Commit()
 }
 
-func (cp *ConfigProviderRepository) ChangeRunningProvider(provider string) error {
+func (cp *ProviderConfigRepository) ChangeRunningProvider(provider string) error {
 	cp.conn.Start()
 	defer cp.conn.End()
 	tx, err := cp.conn.db.Begin(true)

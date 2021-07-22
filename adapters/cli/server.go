@@ -29,7 +29,7 @@ func server(cfg config.Config) {
 	ctx := context.Background()
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
-	configProviderRepo := bbolt.NewConfigProviderRepository(bboltConn)
+	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
 
 	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
 
