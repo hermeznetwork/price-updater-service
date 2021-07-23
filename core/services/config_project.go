@@ -1,6 +1,8 @@
 package services
 
-import "github.com/hermeznetwork/price-updater-service/core/ports"
+import (
+	"github.com/hermeznetwork/price-updater-service/core/ports"
+)
 
 type ProjectConfigService struct {
 	pcr ports.ProjectConfigRepository

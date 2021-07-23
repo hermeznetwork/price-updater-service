@@ -32,10 +32,6 @@ func init() {
 	serverCmd.Flags().String("eth-network", "", "ethereum address")
 	serverCmd.Flags().String("fiat-key", "", "fiat api key")
 
-	serverCmd.MarkFlagRequired("pg-user")
-	serverCmd.MarkFlagRequired("pg-pass")
-	serverCmd.MarkFlagRequired("pg-host")
-	serverCmd.MarkFlagRequired("pg-dbname")
 }
 
 func Execute() {
@@ -48,6 +44,10 @@ func Execute() {
 func baseSetup() {
 	cfg, err = config.LoadByEnv()
 	if err != nil {
+		serverCmd.MarkFlagRequired("pg-user")
+		serverCmd.MarkFlagRequired("pg-pass")
+		serverCmd.MarkFlagRequired("pg-host")
+		serverCmd.MarkFlagRequired("pg-dbname")
 		cfg, err = config.LoadByFlags(serverCmd)
 		if err != nil {
 			panic(err.Error())
