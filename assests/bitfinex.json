@@ -1,0 +1,9 @@
+{
+    "provider": "bitfinex",
+    "config": {
+        "0": "ETH",
+        "2": "UST",
+        "9": "SUSHI",
+        "5": "WBT"
+    }
+}
