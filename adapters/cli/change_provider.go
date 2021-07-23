@@ -30,7 +30,7 @@ func init() {
 func changeProvider(cfg config.Config) {
 	log.Println("running change provider")
 	bboltCon := bbolt.NewConnection(cfg.Bbolt)
-	configProviderRepository := bbolt.NewConfigProviderRepository(bboltCon)
+	configProviderRepository := bbolt.NewProviderConfigRepository(bboltCon)
 	configUpdaterServices := services.NewConfigUpdaterServices(configProviderRepository)
 	changeProviderCmd := command.NewChangeProviderCommand(changeProviderName, configUpdaterServices)
 	err := changeProviderCmd.Execute()

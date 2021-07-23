@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.14.0
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/lib/pq v1.10.2
-	github.com/spf13/cobra v1.2.1 // indirect
+	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/valyala/fasthttp v1.28.0 // indirect
 	go.etcd.io/bbolt v1.3.6

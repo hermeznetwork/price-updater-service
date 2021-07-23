@@ -1,0 +1,11 @@
+[Unit]
+Description=service to get prices of ETHEREUM token to Hermez Network
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+KillMode=process
+ExcStart=price-updater server
+StandardOutput=append:/var/log/price-updater.log
+StandardError=append:/var/log/price-updater.log
