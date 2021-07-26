@@ -55,7 +55,7 @@ You can set up the configuration of the system by env file
 - MAIN_TIME_TO_UPDATE_PRICES (default: 30s):
     Time between updates executed by system.
 
-### Providers Configuration
+### Provider Configuration
 
 There are two commands related to providers:
 
