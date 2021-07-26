@@ -1,16 +1,16 @@
 # Price Updater Service
 
-Price Updater is an web service to consult token and currency prices used to Hermez Node.
+Price Updater is a web service to consult token and currency prices used by Hermez Node.
 
 ## How It Works
 
-1. The system was built with Golang and designed to running through [commands](##usage).
-2. Given a time to update (time set in through configuration, or using default value of 30s), the system update the prices of currency and tokens.
+1. The system was built with Golang and designed to run through [commands](##usage).
+2. Given a specific time to update (the time can be set in through configuration, or by using a default value of 30s), the system updates the prices of currency and tokens.
 3. The prices of tokens and currencies are returned through an endpoint.
 
 ## Instalation
 
-To install system just clone and build it!
+To install the system just clone and build it!
 
 ```bash=
 $ git clone git@github.com:hermeznetwork/price-updater-service.git
@@ -20,12 +20,12 @@ $ cd go build -o priceupdater # or other name that you want
 
 ## Usage 
 
-The system has designed to running through commands listed above
+The system has been designed to run through the commands listed above
 
 
 ### Configuration
 
-You can setup the configuration to system on environment variables or an .env file
+You can set up the configuration of the system by env file
 
 - HTTP_HOST:
     Host to server
@@ -55,15 +55,15 @@ You can setup the configuration to system on environment variables or an .env fi
 - MAIN_TIME_TO_UPDATE_PRICES (default: 30s):
     Time between updates executed by system.
 
-### Providers configuration
+### Providers Configuration
 
 There are two commands related to providers:
 
 1. `change-provider --provider <provider-name>`
     
-    This command must be executed before the other commands. It tell's to system what provider must be executed.
+    This command must be executed before the other commands. It tells the system what provider must be executed.
     
-    Also, he is used to change the provider in runtime.
+    It is used to change the provider in runtime.
     <details><summary><b>Show example</b></summary>
     
     ```bash
@@ -71,7 +71,7 @@ There are two commands related to providers:
     ```
 2. `update-config --provider <provider-name> --configFile <path-to-config.json>`
     
-    After running `change-provider` first time, you should load the provider's configuration
+    After running `change-provider` the first time, you should load the provider's configuration
     <details><summary><b>Show example</b></summary>
     
     
@@ -82,18 +82,18 @@ There are two commands related to providers:
 
 ### Project Settings
 
-There is just one command to project settings:
+There is just one command for project settings:
 
 1. `setup-origin --origins "items,comma,separated"`
-    This command will setup hostnames that the system will accept incoming requests. The default value is `*`, that's means accept everyone.
+    This command will set up hostnames that the system will accept as incoming requests. The default value is `*`, which means it accepts all requests. 
 
 ### Server
 
-There is just one command to running the server:
+There is just one command for running the server:
 
 1. `server`
 
-    This command will start the server of Price Updater. It's possible pass some configuration to system.
+    This command will start the Price Updater server. It's possible to pass some configurations to the system.
     
     <details><summary><b>Show example</b></summary>
     
@@ -125,7 +125,7 @@ There a list of implemented providers by Price Updater
 
 ### Provider Config
 
-We had create a pattern using a JSON file to put the necessary configuration to running the providers on system.
+We have created a pattern using a JSON file to put the necessary configuration for running the providers on the system.
 
 ```json
 {
@@ -138,4 +138,4 @@ We had create a pattern using a JSON file to put the necessary configuration to 
 }
 ```
 
-The config object means: The key is the `tokenID` from database of your hermez-node (maybe in goerli, rinkeby or mainnet), and the value can be the Address of token on Mainnet Ethereum network or the symbol.
+The config object means: The key is the `tokenID` from your hermez-node database (possibly in Goerli, Rinkeby or Mainnet), and the value can be the Address of the token on Mainnet Ethereum network or the symbol.
