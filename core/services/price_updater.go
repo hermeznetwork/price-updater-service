@@ -52,3 +52,7 @@ func (s *PriceUpdaterService) UpdatePrices() error {
 
 	return nil
 }
+
+func (s *PriceUpdaterService) UpdatePrice(tokenID uint, value float64) error {
+	return s.tr.UpdateTokenPrice(s.ctx, tokenID, value)
+}
