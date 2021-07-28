@@ -15,7 +15,7 @@ To install the system just clone and build it!
 ```bash=
 $ git clone git@github.com:hermeznetwork/price-updater-service.git
 $ cd price-updater-service/
-$ cd go build -o priceupdater # or other name that you want
+$ go build -o priceupdater # or other name that you want
 ```
 
 ## Usage 
