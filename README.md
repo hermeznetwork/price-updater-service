@@ -15,7 +15,7 @@ To install the system just clone and build it!
 ```bash=
 $ git clone git@github.com:hermeznetwork/price-updater-service.git
 $ cd price-updater-service/
-$ cd go build -o priceupdater # or other name that you want
+$ go build -o priceupdater # or other name that you want
 ```
 
 ## Usage 
@@ -86,6 +86,13 @@ There is just one command for project settings:
 
 1. `setup-origin --origins "items,comma,separated"`
     This command will set up hostnames that the system will accept as incoming requests. The default value is `*`, which means it accepts all requests. 
+
+### Update Static Tokens
+
+There is just one command for update static tokens:
+
+1. `update-static-token --tokenID 1 --price 1.531`
+    This command will update the price of given tokenID
 
 ### Server
 
