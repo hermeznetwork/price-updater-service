@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "c2bca0a8-247e-411d-b076-fd3c9871e6e4",
-		"name": "Price Updater Collections",
+		"_postman_id": "31a6bd06-d1dd-4749-868c-6e8f5659febd",
+		"name": "Price Updater Collections - Internal Testnet",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -9,14 +9,21 @@
 			"name": "Get tokens prices",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Origin",
+						"value": "my-default-origin",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "https://priceupdater.marioidival.xyz/v1/tokens",
+					"raw": "https://priceupdater.internaltestnet.hermez.io/v1/tokens",
 					"protocol": "https",
 					"host": [
 						"priceupdater",
-						"marioidival",
-						"xyz"
+						"internaltestnet",
+						"hermez",
+						"io"
 					],
 					"path": [
 						"v1",
@@ -30,14 +37,21 @@
 			"name": "Get token price",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Origin",
+						"value": "my-default-origin",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "https://priceupdater.marioidival.xyz/v1/tokens/1",
+					"raw": "https://priceupdater.internaltestnet.hermez.io/v1/tokens/1",
 					"protocol": "https",
 					"host": [
 						"priceupdater",
-						"marioidival",
-						"xyz"
+						"internaltestnet",
+						"hermez",
+						"io"
 					],
 					"path": [
 						"v1",
@@ -52,14 +66,21 @@
 			"name": "Get currencies prices",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Origin",
+						"value": "my-default-origin",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "https://priceupdater.marioidival.xyz/v1/currencies",
+					"raw": "https://priceupdater.internaltestnet.hermez.io/v1/currencies",
 					"protocol": "https",
 					"host": [
 						"priceupdater",
-						"marioidival",
-						"xyz"
+						"internaltestnet",
+						"hermez",
+						"io"
 					],
 					"path": [
 						"v1",
@@ -73,14 +94,21 @@
 			"name": "Get currency price",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Origin",
+						"value": "my-default-origin",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "https://priceupdater.marioidival.xyz/v1/currencies/JPY",
+					"raw": "https://priceupdater.internaltestnet.hermez.io/v1/currencies/JPY",
 					"protocol": "https",
 					"host": [
 						"priceupdater",
-						"marioidival",
-						"xyz"
+						"internaltestnet",
+						"hermez",
+						"io"
 					],
 					"path": [
 						"v1",
