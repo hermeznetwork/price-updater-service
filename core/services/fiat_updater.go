@@ -24,9 +24,9 @@ func (f *FiatUpdaterService) GetPrice(currency string) (domain.FiatPrice, error)
 	return f.fr.GetFiatPrice(ctx, currency)
 }
 
-func (f *FiatUpdaterService) GetPrices() ([]domain.FiatPrice, error) {
+func (f *FiatUpdaterService) GetPrices(limit uint, fromItem uint, order string) ([]domain.FiatPrice, error) {
 	ctx := context.Background()
-	return f.fr.GetFiatPrices(ctx, "USD")
+	return f.fr.GetFiatPrices(ctx, "USD", limit, fromItem, order)
 }
 
 func (f *FiatUpdaterService) UpdatePrices() error {
@@ -39,7 +39,7 @@ func (f *FiatUpdaterService) UpdatePrices() error {
 	}
 
 	// get all price from database with baseCurrency DB
-	currencies, err := f.fr.GetFiatPrices(ctx, "USD")
+	currencies, err := f.fr.GetFiatPrices(ctx, "USD", 0, 0, "ASC")
 
 	for currency, price := range rates {
 		// check if currency already exists

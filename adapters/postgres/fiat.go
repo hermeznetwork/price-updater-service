@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
@@ -20,7 +21,7 @@ func NewFiatPricesRepository(conn *Connection) ports.FiatPriceRepository {
 
 func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string) (domain.FiatPrice, error) {
 	var fp domain.FiatPrice
-	stmt := f.conn.db.QueryRowContext(ctx, "SELECT currency, base_currency, price, last_update FROM fiat WHERE currency = $1;", currency)
+	stmt := f.conn.db.QueryRowContext(ctx, "SELECT currency, base_currency, COALESCE(price,0), COALESCE(last_update,'1970-01-01 00:00:00') FROM fiat WHERE currency = $1;", currency)
 	err := stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price, &fp.LastUpdate)
 	if err == sql.ErrNoRows {
 		return fp, nil
@@ -31,9 +32,29 @@ func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string
 	return fp, nil
 }
 
-func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, baseCurrency string) ([]domain.FiatPrice, error) {
+func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, baseCurrency string, limit uint, fromItem uint, order string) ([]domain.FiatPrice, error) {
 	var fiatPrices []domain.FiatPrice
-	stmt, err := f.conn.db.Query("SELECT currency, base_currency, price, last_update FROM fiat WHERE base_currency = $1;", baseCurrency)
+	var args []interface{}
+	args = append(args, baseCurrency)
+	query := "SELECT currency, base_currency, COALESCE(price,0), COALESCE(last_update,'1970-01-01 00:00:00') FROM fiat WHERE base_currency = $1 AND "
+	if order == "ASC" {
+		query += "item_id >= $2 "
+	} else {
+		query += "item_id <= $2 "
+	}
+	args = append(args, fromItem)
+
+	// pagination
+	query += "ORDER BY item_id "
+	if order == "ASC" {
+		query += "ASC "
+	} else {
+		query += "DESC "
+	}
+	if limit != 0 {
+		query += fmt.Sprintf("LIMIT %d;", limit)
+	}
+	stmt, err := f.conn.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return fiatPrices, err
 	}

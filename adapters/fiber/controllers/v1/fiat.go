@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
@@ -43,7 +44,19 @@ func (p *CurrencyController) GetFiatPrice(ctx *fiber.Ctx) error {
 
 func (p *CurrencyController) GetFiatPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
-	prices, err := p.svc.GetPrices()
+	fromItem, err := strconv.Atoi(ctx.Query("fromItem"))
+	if err != nil {
+		fromItem = 0
+	}
+	limit, err := strconv.Atoi(ctx.Query("limit"))
+	if err != nil {
+		limit = 0
+	}
+	var order string = ctx.Query("order")
+	if order == "" {
+		order = "ASC"
+	}
+	prices, err := p.svc.GetPrices(uint(limit), uint(fromItem), order)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
