@@ -150,7 +150,7 @@ The config object means: The key is the `tokenID` from your hermez-node database
 
 ## API
 
-There is a list of endpoints (and examples) that can be called on the Price Update Service. You can see this examples on Postman Collection file at project's root folder.
+There is a list of endpoints (and examples) that can be called on the Price Update Service. You can see these examples in the Postman Collection file at the project's root folder.
 First of all, the API has a requirement for all requests, the user must set the **Origin** header even if the **Origin** is not registered on the project.
 
 - _All examples have been run with [Httpie](https://httpie.io/)_
@@ -187,7 +187,7 @@ Healthy
 - HTTP Method: GET
 - Details: Returns a list of tokens prices.
 
-_In response for this request was omitted tokens to be more readable_
+_We omitted some tokens in the response to make it more readable_
 
 ```cmd
 ☁  ~  http https://priceupdater.hermez.io/v1/tokens Origin:my-origin
