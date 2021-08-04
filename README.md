@@ -150,16 +150,17 @@ The config object means: The key is the `tokenID` from your hermez-node database
 
 ## API
 
-There is a list of endpoints (and examples) that can be called on the Price Update Service. You can see this examples on Postman Collection no root of the project!
-First of all, the API has a requirement for all requests, the user must set the **Origin** header even if the **Origin** will not register on the project.
+There is a list of endpoints (and examples) that can be called on the Price Update Service. You can see this examples on Postman Collection file at project's root folder.
+First of all, the API has a requirement for all requests, the user must set the **Origin** header even if the **Origin** is not registered on the project.
 
 - _All examples have been run with [Httpie](https://httpie.io/)_
-- _All cases respond only to HTTP METHOD GET_
 
 
 ### Health endpoint
 
 - Endpoint: /v1/health
+- HTTP Method: GET
+- Details: This will expose if the server is running.
 
 ```cmd
 ☁  ~  http https://priceupdater.hermez.io/v1/health Origin:my-origin
@@ -183,6 +184,8 @@ Healthy
 ### Tokens endpoint
 
 - Endpoint: /v1/tokens
+- HTTP Method: GET
+- Details: Returns a list of tokens prices.
 
 _In response for this request was omitted tokens to be more readable_
 
@@ -256,6 +259,9 @@ Transfer-Encoding: chunked
 ### Get specific Token
 
 - Endpoint: /v1/tokens/<TOKEN_ID>
+- HTTP Method: GET
+- Details: Returns the price for a specific token.
+
 
 ```cmd
 ☁  ~  http https://priceupdater.hermez.io/v1/tokens/17 Origin:my-origin
@@ -311,6 +317,8 @@ Server: cloudflare
 ### Currencies
 
 - Endpoint: /v1/currencies
+- HTTP Method: GET
+- Details: Returns a list of currencies prices.
 
 ```cmd
 ☁  ~  http https://priceupdater.hermez.io/v1/currencies Origin:my-origin
@@ -361,6 +369,8 @@ Transfer-Encoding: chunked
 ### Get specific Currency
 
 - Endpoint: /v1/currencies/<CURRENCY>
+- HTTP Method: GET
+- Details: Returns the price for a specific currency.
 
 ```cmd
 ☁  ~  http https://priceupdater.hermez.io/v1/currencies/EUR Origin:my-origin
