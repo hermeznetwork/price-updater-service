@@ -2,9 +2,8 @@ package coingecko
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
+	"log"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -52,19 +51,24 @@ func getUrlByAdressValue(address string) string {
 	return URL + address + URLExtraParams
 }
 
-func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
+func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
+	var tokenErrs []uint
 	prices := make([]map[uint]float64, len(c.addresses))
 	for tokenID, address := range c.addresses {
 		url := getUrlByAdressValue(address)
 		req, err := c.cli.New().Get(url).Request()
 		if err != nil {
-			return prices, err
+			log.Println("error: ", err)
+			tokenErrs = append(tokenErrs, tokenID)
+			continue
 		}
 
 		var data map[string]map[string]float64
 		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
 		if err != nil {
-			return prices, err
+			log.Println("error: ", err)
+			tokenErrs = append(tokenErrs, tokenID)
+			continue
 		}
 		itemResponseKey := "ethereum"
 		if address != EmptyAddr {
@@ -72,7 +76,9 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		}
 		value := data[itemResponseKey]["usd"]
 		if res.StatusCode != http.StatusOK {
-			return prices, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
+			tokenErrs = append(tokenErrs, tokenID)
+			log.Println("http error: ", res.StatusCode, res.Status)
+			continue
 		}
 		result := make(map[uint]float64)
 		var key uint
@@ -82,6 +88,46 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		result[key] = value
 		prices = append(prices, result)
 	}
-	return prices, nil
+	return prices, tokenErrs, nil
+}
 
+func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
+	var tokErrs []uint
+	for i:=0; i<len(tokenErrs); i++ {
+		tokenID := tokenErrs[i]
+		address := c.addresses[uint(tokenID)]
+		url := getUrlByAdressValue(address)
+		req, err := c.cli.New().Get(url).Request()
+		if err != nil {
+			log.Println("error: ", err)
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+
+		var data map[string]map[string]float64
+		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
+		if err != nil {
+			log.Println("error: ", err)
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+		itemResponseKey := "ethereum"
+		if address != EmptyAddr {
+			itemResponseKey = address
+		}
+		value := data[itemResponseKey]["usd"]
+		if res.StatusCode != http.StatusOK {
+			tokErrs = append(tokErrs, tokenID)
+			log.Println("http error: ", res.StatusCode, res.Status)
+			continue
+		}
+		result := make(map[uint]float64)
+		var key uint
+		if itemResponseKey != "ethereum" {
+			key = tokenID
+		}
+		result[key] = value
+		prices = append(prices, result)
+	}
+	return prices, tokErrs, nil
 }

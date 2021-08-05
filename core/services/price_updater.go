@@ -9,21 +9,21 @@ import (
 )
 
 type PriceUpdaterService struct {
-	pr  ports.PriceProvider
+	pr  []ports.PriceProvider
 	tr  ports.TokenRepository
 	ctx context.Context
 }
 
-func NewPriceUpdaterService(ctx context.Context, provider ports.PriceProvider, tr ports.TokenRepository) *PriceUpdaterService {
+func NewPriceUpdaterService(ctx context.Context, providers []ports.PriceProvider, tr ports.TokenRepository) *PriceUpdaterService {
 	return &PriceUpdaterService{
-		pr:  provider,
+		pr:  providers,
 		tr:  tr,
 		ctx: ctx,
 	}
 }
 
-func (s *PriceUpdaterService) LoadProvider(provider ports.PriceProvider) {
-	s.pr = provider
+func (s *PriceUpdaterService) LoadProvider(providers []ports.PriceProvider) {
+	s.pr = providers
 }
 
 func (s *PriceUpdaterService) GetToken(tokenID uint) (domain.Token, error) {
@@ -35,10 +35,30 @@ func (s *PriceUpdaterService) GetTokens(fromItem uint, limit uint, order string)
 }
 
 func (s *PriceUpdaterService) UpdatePrices() error {
-	// get prices from provider
-	prices, err := s.pr.GetPrices(s.ctx)
-	if err != nil {
-		return err
+	// get prices from providers
+	var (
+		prices []map[uint]float64
+		tokenErrs []uint
+		err error
+	)
+	for i:=0; i<len(s.pr); i++{
+		if len(tokenErrs) == 0 {
+			prices, tokenErrs, err = s.pr[i].GetPrices(s.ctx)
+			log.Println("tokenErrs: ",tokenErrs)
+			if err != nil || len(tokenErrs) != 0 {
+				log.Println("Error getting prices from provider: ", err, " TokenErrs length is ", len(tokenErrs))
+				continue
+			}
+		} else {
+			prices, tokenErrs, err = s.pr[i].GetFailedPrices(s.ctx, prices, tokenErrs)
+			log.Println("tokenErrs: ",tokenErrs)
+			if err != nil || len(tokenErrs) != 0 {
+				log.Println("Error getting prices from provider: ", err, " TokenErrs length is ", len(tokenErrs))
+				continue
+			}
+		}
+		log.Println("Prices: ",prices)
+		break
 	}
 
 	for _, price := range prices {

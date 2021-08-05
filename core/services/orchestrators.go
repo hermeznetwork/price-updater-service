@@ -29,11 +29,11 @@ func (orchestrator *ProviderUpdateOrchestratorService) UpdatePrices() error {
 
 func (orchestrator *ProviderUpdateOrchestratorService) LoadAndExecutePriceProvider() error {
 	log.Println("Check if provider has changed")
-	provider, err := orchestrator.providerSelector.CurrentProvider()
+	providers, err := orchestrator.providerSelector.AllProviders()
 	if err != nil {
 		log.Println("fail to retrive current provider: ", err.Error())
 		return err
 	}
-	orchestrator.priceUpdater.LoadProvider(provider)
+	orchestrator.priceUpdater.LoadProvider(providers)
 	return orchestrator.UpdatePrices()
 }

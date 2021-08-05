@@ -7,7 +7,8 @@ import (
 )
 
 type PriceProvider interface {
-	GetPrices(ctx context.Context) ([]map[uint]float64, error)
+	GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error)
+	GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error)
 }
 
 type ConfigProviderRepository interface {

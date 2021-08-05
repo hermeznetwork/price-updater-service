@@ -33,10 +33,9 @@ func server(cfg config.Config) {
 	/* memorydb := memory.NewMemoryDB()
 	 */
 	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
-
 	// providers
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
-	tokenProvider, err := priceSelector.CurrentProvider()
+	tokenProviders, err := priceSelector.AllProviders()
 	if err != nil {
 		log.Println("try server start up:", err.Error())
 		os.Exit(1)
@@ -48,7 +47,7 @@ func server(cfg config.Config) {
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltConn)
 
 	// service
-	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProvider, priceRepository)
+	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProviders, priceRepository)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 	orchestrator := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)

@@ -3,6 +3,7 @@ package uniswap
 import (
 	"context"
 	"math/big"
+	"log"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -27,15 +28,16 @@ func NewClient(cfg config.EthConfig) (ports.PriceProvider, error) {
 	return &Client{ethConn: conn, ethConf: cfg}, nil
 }
 
-func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
+func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
+	var tokenErrs []uint
 	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	registerTokenCount, err := rollup.RegisterTokensCount(nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	addresses := make(map[uint]common.Address)
@@ -53,7 +55,9 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 	for tokenID, address := range addresses {
 		uniswapToken, err := contract.NewToken(common.HexToAddress(uniswapAddress), c.ethConn)
 		if err != nil {
-			return nil, err
+			log.Println("error: ", err)
+			tokenErrs = append(tokenErrs, tokenID)
+			continue
 		}
 
 		usdtFilter := []common.Address{
@@ -61,7 +65,9 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		}
 		t, err := uniswapToken.FilterPairCreated(nil, []common.Address{address}, usdtFilter)
 		if err != nil {
-			return nil, err
+			log.Println("error: ", err)
+			tokenErrs = append(tokenErrs, tokenID)
+			continue
 		}
 
 		for t.Next() {
@@ -82,5 +88,61 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 			result = append(result, r)
 		}
 	}
-	return result, nil
+	return result, tokenErrs, nil
+}
+
+func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
+	var tokErrs []uint
+	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	addresses := make(map[uint]common.Address)
+	for i := 0; i < len(tokenErrs); i++ {
+		tokenAddress, err := rollup.TokenList(nil, big.NewInt(int64(i)))
+		if err != nil {
+			// TODO: logging to fail
+			continue
+		}
+		addresses[uint(i)] = tokenAddress
+	}
+
+	for tokenID, address := range addresses {
+		uniswapToken, err := contract.NewToken(common.HexToAddress(uniswapAddress), c.ethConn)
+		if err != nil {
+			log.Println("error: ", err)
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+
+		usdtFilter := []common.Address{
+			common.HexToAddress(c.ethConf.UsdtAddress),
+		}
+		t, err := uniswapToken.FilterPairCreated(nil, []common.Address{address}, usdtFilter)
+		if err != nil {
+			log.Println("error: ", err)
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+
+		for t.Next() {
+			pairAddress, err := uniswapToken.GetPair(nil, t.Event.Token0, t.Event.Token1)
+			if err != nil {
+				// TODO: logging information about try
+				continue
+			}
+
+			pricesFromPairs, err := getPriceFromPairsInfo(pairAddress, address, c.ethConn)
+			if err != nil {
+				// TODO: logging information about try
+				continue
+			}
+			float64Value, _ := pricesFromPairs.price.Float64()
+			r := make(map[uint]float64)
+			r[tokenID] = float64Value
+			prices = append(prices, r)
+		}
+	}
+	return prices, tokErrs, nil
 }

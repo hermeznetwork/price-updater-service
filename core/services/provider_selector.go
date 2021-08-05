@@ -50,3 +50,18 @@ func (selector *ProviderSelectorService) Select(name string) (ports.PriceProvide
 		return nil, nil
 	}
 }
+func (selector *ProviderSelectorService) AllProviders() ([]ports.PriceProvider, error) {
+	var err error
+	providers := []string{"bitfinex","coingecko","uniswap"} //The order is prioritized
+	log.Println("Get all providers:", providers)
+	var priceProviders []ports.PriceProvider
+	for i:=0;i<len(providers);i++{
+		var prov ports.PriceProvider
+		prov, err = selector.Select(providers[i])
+		if err != nil {
+			log.Println("Error getting provider "+providers[i]+": ",err)
+		}
+		priceProviders = append(priceProviders, prov)
+	}
+	return priceProviders, err
+}
