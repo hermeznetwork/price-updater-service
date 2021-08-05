@@ -54,7 +54,19 @@ func (p *TokensController) GetTokenPrice(ctx *fiber.Ctx) error {
 
 func (p *TokensController) GetTokenPrices(ctx *fiber.Ctx) error {
 	// TODO: Getting from memory
-	prices, err := p.svc.GetTokens()
+	fromItem, err := strconv.Atoi(ctx.Query("fromItem"))
+	if err != nil {
+		fromItem = 0
+	}
+	limit, err := strconv.Atoi(ctx.Query("limit"))
+	if err != nil {
+		limit = 0
+	}
+	var order string = ctx.Query("order")
+	if order == "" {
+		order = "ASC"
+	}
+	prices, err := p.svc.GetTokens(uint(fromItem), uint(limit), order)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": err.Error(),

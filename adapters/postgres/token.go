@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
@@ -33,7 +34,7 @@ func NewTokenRepository(conn *Connection) ports.TokenRepository {
 
 func (t *TokenRepository) GetToken(ctx context.Context, tokenID uint) (domain.Token, error) {
 	var token domain.Token
-	stmt := t.conn.db.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, usd_update, name, symbol, usd, eth_addr FROM token WHERE token_id  = $1", tokenID)
+	stmt := t.conn.db.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE token_id  = $1", tokenID)
 	tdb := tokenFromDB{}
 	err := stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
 	if err == sql.ErrNoRows {
@@ -46,9 +47,28 @@ func (t *TokenRepository) GetToken(ctx context.Context, tokenID uint) (domain.To
 	return token, nil
 }
 
-func (t *TokenRepository) GetTokens(ctx context.Context) ([]domain.Token, error) {
+func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit uint, order string) ([]domain.Token, error) {
 	var tokens []domain.Token
-	stmt, err := t.conn.db.QueryContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, usd_update, name, symbol, usd, eth_addr FROM token")
+	var args []interface{}
+	query := "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE "
+	if order == "ASC" {
+		query += "item_id >= $1 "
+	} else {
+		query += "item_id <= $1 "
+	}
+	args = append(args, fromItem)
+
+	// pagination
+	query += "ORDER BY item_id "
+	if order == "ASC" {
+		query += "ASC "
+	} else {
+		query += "DESC "
+	}
+	if limit != 0 {
+		query += fmt.Sprintf("LIMIT %d;", limit)
+	}
+	stmt, err := t.conn.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return tokens, err
 	}
