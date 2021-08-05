@@ -52,14 +52,18 @@ func (selector *ProviderSelectorService) Select(name string) (ports.PriceProvide
 }
 func (selector *ProviderSelectorService) AllProviders() ([]ports.PriceProvider, error) {
 	var err error
-	providers := []string{"bitfinex","coingecko","uniswap"} //The order is prioritized
-	log.Println("Get all providers:", providers)
+	//Get priority from db
+	priorityProviders, err := selector.brepo.PriorityProviders()
+	if err != nil {
+		log.Println("try get the current provider: ", err.Error())
+		return nil, err
+	}
 	var priceProviders []ports.PriceProvider
-	for i:=0;i<len(providers);i++{
+	for i:=0;i<len(priorityProviders);i++{
 		var prov ports.PriceProvider
-		prov, err = selector.Select(providers[i])
+		prov, err = selector.Select(priorityProviders[i])
 		if err != nil {
-			log.Println("Error getting provider "+providers[i]+": ",err)
+			log.Println("Error getting provider "+priorityProviders[i]+": ",err)
 		}
 		priceProviders = append(priceProviders, prov)
 	}

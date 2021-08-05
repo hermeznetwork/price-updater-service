@@ -26,3 +26,11 @@ func (c *ConfigUpdaterService) UpdateConfig(pr *domain.PriceProvider) error {
 func (c *ConfigUpdaterService) ChangeRunningProvider(provider string) error {
 	return c.cpr.ChangeRunningProvider(provider)
 }
+
+func (c *ConfigUpdaterService) ChangePriority(priority string) error {
+	return c.cpr.ChangePriority(priority)
+}
+
+func (c *ConfigUpdaterService) PriorityProviders() ([]string, error) {
+	return c.cpr.PriorityProviders()
+}

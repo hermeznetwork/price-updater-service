@@ -16,4 +16,6 @@ type ConfigProviderRepository interface {
 	ChangeRunningProvider(provider string) error
 	SaveConfig(provider string, data domain.PriceProvider) error
 	LoadConfig(provider string) (domain.PriceProvider, error)
+	ChangePriority(priority string) error
+	PriorityProviders() ([]string, error)
 }

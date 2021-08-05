@@ -24,6 +24,7 @@ func init() {
 	rootCmd.AddCommand(changeProviderCmd)
 	rootCmd.AddCommand(setupOriginCmd)
 	rootCmd.AddCommand(updateStaticTokenCmd)
+	rootCmd.AddCommand(priorityCmd)
 
 	serverCmd.Flags().String("pg-user", "", "postgresql username")
 	serverCmd.Flags().String("pg-pass", "", "postgresql password")
