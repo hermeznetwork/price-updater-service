@@ -45,13 +45,14 @@ func (s *PriceUpdaterService) UpdatePrices() error {
 		if len(tokenErrs) == 0 {
 			prices, tokenErrs, err = s.pr[i].GetPrices(s.ctx)
 			if err != nil || len(tokenErrs) != 0 {
-				log.Println("Error getting prices from provider: ", err, " TokenErrs length is ", len(tokenErrs))
+				log.Println("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
 				continue
 			}
 		} else {
+			log.Println("Checking next provider")
 			prices, tokenErrs, err = s.pr[i].GetFailedPrices(s.ctx, prices, tokenErrs)
 			if err != nil || len(tokenErrs) != 0 {
-				log.Println("Error getting prices from provider: ", err, " TokenErrs length is ", len(tokenErrs))
+				log.Println("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
 				continue
 			}
 		}

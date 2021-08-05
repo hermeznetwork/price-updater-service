@@ -29,6 +29,7 @@ func NewClient(cfg config.EthConfig) (ports.PriceProvider, error) {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
+	log.Println("Uniswap")
 	var tokenErrs []uint
 	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
 	if err != nil {
@@ -63,35 +64,39 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		usdtFilter := []common.Address{
 			common.HexToAddress(c.ethConf.UsdtAddress),
 		}
-		t, err := uniswapToken.FilterPairCreated(nil, []common.Address{address}, usdtFilter)
-		if err != nil {
-			log.Println("error: ", err)
-			tokenErrs = append(tokenErrs, tokenID)
-			continue
-		}
-
-		for t.Next() {
-			pairAddress, err := uniswapToken.GetPair(nil, t.Event.Token0, t.Event.Token1)
+		var tokens = [][]common.Address{usdtFilter, []common.Address{address}}
+		for i:=0; i<2; i++ {
+			t, err := uniswapToken.FilterPairCreated(nil, tokens[1-i], tokens[i])
 			if err != nil {
-				// TODO: logging information about try
+				log.Println("error: ", err)
+				tokenErrs = append(tokenErrs, tokenID)
 				continue
 			}
 
-			pricesFromPairs, err := getPriceFromPairsInfo(pairAddress, address, c.ethConn)
-			if err != nil {
-				// TODO: logging information about try
-				continue
+			for t.Next() {
+				pairAddress, err := uniswapToken.GetPair(nil, t.Event.Token0, t.Event.Token1)
+				if err != nil {
+					// TODO: logging information about try
+					continue
+				}
+
+				pricesFromPairs, err := getPriceFromPairsInfo(pairAddress, address, c.ethConn)
+				if err != nil {
+					// TODO: logging information about try
+					continue
+				}
+				float64Value, _ := pricesFromPairs.price.Float64()
+				r := make(map[uint]float64)
+				r[tokenID] = float64Value
+				result = append(result, r)
 			}
-			float64Value, _ := pricesFromPairs.price.Float64()
-			r := make(map[uint]float64)
-			r[tokenID] = float64Value
-			result = append(result, r)
 		}
 	}
 	return result, tokenErrs, nil
 }
 
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
+	log.Println("Uniswap")
 	var tokErrs []uint
 	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
 	if err != nil {
@@ -100,14 +105,13 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 
 	addresses := make(map[uint]common.Address)
 	for i := 0; i < len(tokenErrs); i++ {
-		tokenAddress, err := rollup.TokenList(nil, big.NewInt(int64(i)))
+		tokenAddress, err := rollup.TokenList(nil, big.NewInt(int64(tokenErrs[i])))
 		if err != nil {
 			// TODO: logging to fail
 			continue
 		}
-		addresses[uint(i)] = tokenAddress
+		addresses[tokenErrs[i]] = tokenAddress
 	}
-
 	for tokenID, address := range addresses {
 		uniswapToken, err := contract.NewToken(common.HexToAddress(uniswapAddress), c.ethConn)
 		if err != nil {
@@ -119,29 +123,31 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		usdtFilter := []common.Address{
 			common.HexToAddress(c.ethConf.UsdtAddress),
 		}
-		t, err := uniswapToken.FilterPairCreated(nil, []common.Address{address}, usdtFilter)
-		if err != nil {
-			log.Println("error: ", err)
-			tokErrs = append(tokErrs, tokenID)
-			continue
-		}
-
-		for t.Next() {
-			pairAddress, err := uniswapToken.GetPair(nil, t.Event.Token0, t.Event.Token1)
+		var tokens = [][]common.Address{usdtFilter, []common.Address{address}}
+		for i:=0; i<2; i++ {
+			t, err := uniswapToken.FilterPairCreated(nil, tokens[1-i], tokens[i])
 			if err != nil {
-				// TODO: logging information about try
+				log.Println("error: ", err)
+				tokErrs = append(tokErrs, tokenID)
 				continue
 			}
 
-			pricesFromPairs, err := getPriceFromPairsInfo(pairAddress, address, c.ethConn)
-			if err != nil {
-				// TODO: logging information about try
-				continue
+			for t.Next() {
+				pairAddress, err := uniswapToken.GetPair(nil, t.Event.Token0, t.Event.Token1)
+				if err != nil {
+					// TODO: logging information about try
+					continue
+				}
+				pricesFromPairs, err := getPriceFromPairsInfo(pairAddress, address, c.ethConn)
+				if err != nil {
+					// TODO: logging information about try
+					continue
+				}
+				float64Value, _ := pricesFromPairs.price.Float64()
+				r := make(map[uint]float64)
+				r[tokenID] = float64Value
+				prices = append(prices, r)
 			}
-			float64Value, _ := pricesFromPairs.price.Float64()
-			r := make(map[uint]float64)
-			r[tokenID] = float64Value
-			prices = append(prices, r)
 		}
 	}
 	return prices, tokErrs, nil

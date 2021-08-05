@@ -52,6 +52,7 @@ func getUrlByAdressValue(address string) string {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
+	log.Println("CoinGecko")
 	var tokenErrs []uint
 	prices := make([]map[uint]float64, len(c.addresses))
 	for tokenID, address := range c.addresses {
@@ -75,9 +76,9 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 			itemResponseKey = address
 		}
 		value := data[itemResponseKey]["usd"]
-		if res.StatusCode != http.StatusOK {
+		if res.StatusCode != http.StatusOK || len(data) == 0 {
 			tokenErrs = append(tokenErrs, tokenID)
-			log.Println("http error: ", res.StatusCode, res.Status)
+			log.Println("http error: ", res.StatusCode, res.Status, " Data received: ", data)
 			continue
 		}
 		result := make(map[uint]float64)
@@ -92,6 +93,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 }
 
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
+	log.Println("CoinGecko")
 	var tokErrs []uint
 	for i:=0; i<len(tokenErrs); i++ {
 		tokenID := tokenErrs[i]

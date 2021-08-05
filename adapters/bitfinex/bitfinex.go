@@ -45,6 +45,7 @@ func NewClient(symbols map[uint]string) ports.PriceProvider {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
+	log.Println("Bitfinex")
 	prices := make([]map[uint]float64, len(c.symbols))
 	var tokenErrs []uint
 	for tokenID, symbol := range c.symbols {
@@ -85,6 +86,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 }
 
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
+	log.Println("Bitfinex")
 	var tokErrs []uint
 	for i:=0; i<len(tokenErrs); i++ {
 		tokenID := tokenErrs[i]
