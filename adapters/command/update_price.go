@@ -1,7 +1,7 @@
 package command
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/core/services"
 )
@@ -17,6 +17,6 @@ func NewUpdatePriceCommand(srv *services.ProviderUpdateOrchestratorService) *Upd
 }
 
 func (cmd *UpdatePriceCommand) Execute() error {
-	log.Println("Executing UpdatePrices()")
+	log.Info("Executing UpdatePrices()")
 	return cmd.srv.LoadAndExecutePriceProvider()
 }

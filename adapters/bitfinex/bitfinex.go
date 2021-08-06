@@ -2,7 +2,7 @@ package bitfinex
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"net/http"
 	"time"
 
@@ -45,7 +45,7 @@ func NewClient(symbols map[uint]string) ports.PriceProvider {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
-	log.Println("Bitfinex")
+	log.Debug("Bitfinex")
 	prices := make([]map[uint]float64, len(c.symbols))
 	var tokenErrs []uint
 	for tokenID, symbol := range c.symbols {
@@ -59,13 +59,13 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		var data interface{}
 		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
 
 		if data == nil {
-			log.Printf("data received empty. Skiping token: %s\n", symbol)
+			log.Warn("data received empty. Skiping token: %s\n", symbol)
 			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
@@ -75,7 +75,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		value := data.([]interface{})[6].(float64)
 		if res.StatusCode != http.StatusOK {
 			tokenErrs = append(tokenErrs, tokenID)
-			log.Println("http error: ", res.StatusCode, res.Status)
+			log.Warn("http error: ", res.StatusCode, res.Status)
 			continue
 		}
 		result[tokenID] = value
@@ -86,7 +86,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 }
 
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
-	log.Println("Bitfinex")
+	log.Debug("Bitfinex")
 	var tokErrs []uint
 	for i:=0; i<len(tokenErrs); i++ {
 		tokenID := tokenErrs[i]
@@ -101,13 +101,13 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		var data interface{}
 		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokErrs = append(tokErrs, tokenID)
 			continue
 		}
 
 		if data == nil {
-			log.Printf("data received empty. Skiping token: %s\n", symbol)
+			log.Warn("data received empty. Skiping token: ", symbol)
 			tokErrs = append(tokErrs, tokenID)
 			continue
 		}
@@ -117,7 +117,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		value := data.([]interface{})[6].(float64)
 		if res.StatusCode != http.StatusOK {
 			tokErrs = append(tokErrs, tokenID)
-			log.Println("http error: ", res.StatusCode, res.Status)
+			log.Warn("http error: ", res.StatusCode, res.Status)
 			continue
 		}
 		result[tokenID] = value

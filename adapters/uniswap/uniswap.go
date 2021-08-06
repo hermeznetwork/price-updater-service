@@ -3,7 +3,7 @@ package uniswap
 import (
 	"context"
 	"math/big"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -29,7 +29,7 @@ func NewClient(cfg config.EthConfig) (ports.PriceProvider, error) {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
-	log.Println("Uniswap")
+	log.Debug("Uniswap")
 	var tokenErrs []uint
 	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
 	if err != nil {
@@ -56,7 +56,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 	for tokenID, address := range addresses {
 		uniswapToken, err := contract.NewToken(common.HexToAddress(uniswapAddress), c.ethConn)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
@@ -68,7 +68,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		for i:=0; i<2; i++ {
 			t, err := uniswapToken.FilterPairCreated(nil, tokens[1-i], tokens[i])
 			if err != nil {
-				log.Println("error: ", err)
+				log.Warn("error: ", err)
 				tokenErrs = append(tokenErrs, tokenID)
 				continue
 			}
@@ -96,7 +96,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 }
 
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
-	log.Println("Uniswap")
+	log.Debug("Uniswap")
 	var tokErrs []uint
 	rollup, err := contract.NewHezrollup(common.HexToAddress(c.ethConf.HezRollup), c.ethConn)
 	if err != nil {
@@ -115,7 +115,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 	for tokenID, address := range addresses {
 		uniswapToken, err := contract.NewToken(common.HexToAddress(uniswapAddress), c.ethConn)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokErrs = append(tokErrs, tokenID)
 			continue
 		}
@@ -127,7 +127,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		for i:=0; i<2; i++ {
 			t, err := uniswapToken.FilterPairCreated(nil, tokens[1-i], tokens[i])
 			if err != nil {
-				log.Println("error: ", err)
+				log.Warn("error: ", err)
 				tokErrs = append(tokErrs, tokenID)
 				continue
 			}

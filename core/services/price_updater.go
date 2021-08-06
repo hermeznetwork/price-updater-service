@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
@@ -45,14 +45,14 @@ func (s *PriceUpdaterService) UpdatePrices() error {
 		if len(tokenErrs) == 0 {
 			prices, tokenErrs, err = s.pr[i].GetPrices(s.ctx)
 			if err != nil || len(tokenErrs) != 0 {
-				log.Println("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
+				log.Warn("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
 				continue
 			}
 		} else {
-			log.Println("Checking next provider")
+			log.Info("Checking next provider")
 			prices, tokenErrs, err = s.pr[i].GetFailedPrices(s.ctx, prices, tokenErrs)
 			if err != nil || len(tokenErrs) != 0 {
-				log.Println("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
+				log.Warn("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
 				continue
 			}
 		}
@@ -63,7 +63,7 @@ func (s *PriceUpdaterService) UpdatePrices() error {
 		for tokenID, value := range price {
 			err = s.tr.UpdateTokenPrice(s.ctx, tokenID, value)
 			if err != nil {
-				log.Println("try update token price: ", err.Error())
+				log.Error("try update token price: ", err.Error())
 			}
 		}
 	}

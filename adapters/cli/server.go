@@ -2,7 +2,7 @@ package cli
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 	"os/signal"
 
@@ -37,7 +37,7 @@ func server(cfg config.Config) {
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
 	tokenProviders, err := priceSelector.AllProviders()
 	if err != nil {
-		log.Println("try server start up:", err.Error())
+		log.Error("try server start up:", err.Error())
 		os.Exit(1)
 	}
 

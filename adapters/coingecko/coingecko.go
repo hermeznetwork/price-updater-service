@@ -3,7 +3,7 @@ package coingecko
 import (
 	"context"
 	"net/http"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -52,14 +52,14 @@ func getUrlByAdressValue(address string) string {
 }
 
 func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
-	log.Println("CoinGecko")
+	log.Debug("CoinGecko")
 	var tokenErrs []uint
 	prices := make([]map[uint]float64, len(c.addresses))
 	for tokenID, address := range c.addresses {
 		url := getUrlByAdressValue(address)
 		req, err := c.cli.New().Get(url).Request()
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
@@ -67,7 +67,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		var data map[string]map[string]float64
 		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
@@ -78,7 +78,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		value := data[itemResponseKey]["usd"]
 		if res.StatusCode != http.StatusOK || len(data) == 0 {
 			tokenErrs = append(tokenErrs, tokenID)
-			log.Println("http error: ", res.StatusCode, res.Status, " Data received: ", data)
+			log.Warn("http error: ", res.StatusCode, " Data received: ", data)
 			continue
 		}
 		result := make(map[uint]float64)
@@ -93,7 +93,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 }
 
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
-	log.Println("CoinGecko")
+	log.Debug("CoinGecko")
 	var tokErrs []uint
 	for i:=0; i<len(tokenErrs); i++ {
 		tokenID := tokenErrs[i]
@@ -101,7 +101,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		url := getUrlByAdressValue(address)
 		req, err := c.cli.New().Get(url).Request()
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokErrs = append(tokErrs, tokenID)
 			continue
 		}
@@ -109,7 +109,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		var data map[string]map[string]float64
 		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Warn("error: ", err)
 			tokErrs = append(tokErrs, tokenID)
 			continue
 		}
@@ -120,7 +120,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		value := data[itemResponseKey]["usd"]
 		if res.StatusCode != http.StatusOK {
 			tokErrs = append(tokErrs, tokenID)
-			log.Println("http error: ", res.StatusCode, res.Status)
+			log.Warn("http error: ", res.StatusCode, res.Status)
 			continue
 		}
 		result := make(map[uint]float64)

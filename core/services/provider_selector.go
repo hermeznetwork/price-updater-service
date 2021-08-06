@@ -1,7 +1,7 @@
 package services
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bitfinex"
 	"github.com/hermeznetwork/price-updater-service/adapters/coingecko"
@@ -25,10 +25,10 @@ func NewProviderSelectorService(brepo ports.ConfigProviderRepository, cfg config
 func (selector *ProviderSelectorService) CurrentProvider() (ports.PriceProvider, error) {
 	provider, err := selector.brepo.CurrentProvider()
 	if err != nil {
-		log.Println("try get the current provider: ", err.Error())
+		log.Error("try get the current provider: ", err.Error())
 		return nil, err
 	}
-	log.Println("Get the current provider:", provider)
+	log.Info("Get the current provider:", provider)
 
 	return selector.Select(provider)
 }
@@ -46,7 +46,7 @@ func (selector *ProviderSelectorService) Select(name string) (ports.PriceProvide
 	case "uniswap":
 		return uniswap.NewClient(selector.cfg.EthConfig)
 	default:
-		log.Println("provider not found")
+		log.Error("provider not found")
 		return nil, nil
 	}
 }
@@ -55,7 +55,7 @@ func (selector *ProviderSelectorService) AllProviders() ([]ports.PriceProvider, 
 	//Get priority from db
 	priorityProviders, err := selector.brepo.PriorityProviders()
 	if err != nil {
-		log.Println("try get the current provider: ", err.Error())
+		log.Error("try get the current provider: ", err.Error())
 		return nil, err
 	}
 	var priceProviders []ports.PriceProvider
@@ -63,7 +63,7 @@ func (selector *ProviderSelectorService) AllProviders() ([]ports.PriceProvider, 
 		var prov ports.PriceProvider
 		prov, err = selector.Select(priorityProviders[i])
 		if err != nil {
-			log.Println("Error getting provider "+priorityProviders[i]+": ",err)
+			log.Error("Error getting provider "+priorityProviders[i]+": ",err)
 		}
 		priceProviders = append(priceProviders, prov)
 	}

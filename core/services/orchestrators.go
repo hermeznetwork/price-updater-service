@@ -1,6 +1,6 @@
 package services
 
-import "log"
+import "github.com/hermeznetwork/hermez-node/log"
 
 type ProviderUpdateOrchestratorService struct {
 	providerSelector *ProviderSelectorService
@@ -17,21 +17,21 @@ func NewPriceUpdateOrchestratorService(ps *ProviderSelectorService, pus *PriceUp
 }
 
 func (orchestrator *ProviderUpdateOrchestratorService) UpdatePrices() error {
-	log.Println("Executing provider update")
+	log.Info("Executing provider update")
 	err := orchestrator.priceUpdater.UpdatePrices()
 	if err != nil {
 		return err
 	}
 
-	log.Println("Executing fiat update")
+	log.Info("Executing fiat update")
 	return orchestrator.fiatUpdater.UpdatePrices()
 }
 
 func (orchestrator *ProviderUpdateOrchestratorService) LoadAndExecutePriceProvider() error {
-	log.Println("Check if provider has changed")
+	log.Info("Check if provider has changed")
 	providers, err := orchestrator.providerSelector.AllProviders()
 	if err != nil {
-		log.Println("fail to retrive current provider: ", err.Error())
+		log.Error("fail to retrive current provider: ", err.Error())
 		return err
 	}
 	orchestrator.priceUpdater.LoadProvider(providers)

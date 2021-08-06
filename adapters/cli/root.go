@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 
 	"github.com/hermeznetwork/price-updater-service/config"
@@ -38,7 +38,7 @@ func init() {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
 }

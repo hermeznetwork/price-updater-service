@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
@@ -27,14 +27,14 @@ func init() {
 }
 
 func changePriority(priority string) {
-	log.Println("changing provider priority", priority)
+	log.Info("changing provider priority: ", priority)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
 	priorityRepository := bbolt.NewProviderConfigRepository(bboltConn)
 	priorityServices := services.NewConfigUpdaterServices(priorityRepository)
 	changePriorityCmd := command.NewChangePriorityCommand(priority, priorityServices)
 	err := changePriorityCmd.Execute()
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
 }
