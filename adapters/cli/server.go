@@ -33,18 +33,19 @@ func server(cfg config.Config) {
 	/* memorydb := memory.NewMemoryDB()
 	 */
 	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
-	// providers
-	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
-	tokenProviders, err := priceSelector.AllProviders()
-	if err != nil {
-		log.Error("try server start up:", err.Error())
-		os.Exit(1)
-	}
 
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltConn)
+
+	// providers
+	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
+	tokenProviders, err := priceSelector.PrioritizedProviders(ctx, priceRepository)
+	if err != nil {
+		log.Error("try server start up:", err.Error())
+		os.Exit(1)
+	}
 
 	// service
 	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProviders, priceRepository)

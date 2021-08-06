@@ -1,7 +1,10 @@
 package services
 
 import (
+	"context"
+
 	"github.com/hermeznetwork/hermez-node/log"
+	"github.com/hermeznetwork/price-updater-service/core/domain"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bitfinex"
 	"github.com/hermeznetwork/price-updater-service/adapters/coingecko"
@@ -30,19 +33,21 @@ func (selector *ProviderSelectorService) CurrentProvider() (ports.PriceProvider,
 	}
 	log.Info("Get the current provider:", provider)
 
-	return selector.Select(provider)
+	return selector.Select(provider, []domain.Token{})
 }
 
-func (selector *ProviderSelectorService) Select(name string) (ports.PriceProvider, error) {
+func (selector *ProviderSelectorService) Select(name string, defaultTokensInfo []domain.Token) (ports.PriceProvider, error) {
 	configProvidiver, err := selector.brepo.LoadConfig(name)
 	if err != nil {
 		return nil, err
 	}
 	switch configProvidiver.Provider {
 	case "bitfinex":
-		return bitfinex.NewClient(configProvidiver.MappingBetweenNetwork), nil
+		allTokens := mergeTokens(defaultTokensInfo, configProvidiver.MappingBetweenNetwork, name)
+		return bitfinex.NewClient(allTokens), nil
 	case "coingecko":
-		return coingecko.NewClient(configProvidiver.MappingBetweenNetwork), nil
+		allTokens := mergeTokens(defaultTokensInfo, configProvidiver.MappingBetweenNetwork, name)
+		return coingecko.NewClient(allTokens), nil
 	case "uniswap":
 		return uniswap.NewClient(selector.cfg.EthConfig)
 	default:
@@ -50,7 +55,7 @@ func (selector *ProviderSelectorService) Select(name string) (ports.PriceProvide
 		return nil, nil
 	}
 }
-func (selector *ProviderSelectorService) AllProviders() ([]ports.PriceProvider, error) {
+func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Context, priceRepository ports.TokenRepository) ([]ports.PriceProvider, error) {
 	var err error
 	//Get priority from db
 	priorityProviders, err := selector.brepo.PriorityProviders()
@@ -58,14 +63,39 @@ func (selector *ProviderSelectorService) AllProviders() ([]ports.PriceProvider, 
 		log.Error("try get the current provider: ", err.Error())
 		return nil, err
 	}
+	//Get default token info
+	defaultTokensInfo, err :=priceRepository.GetTokens(ctx, 0, 0, "ASC")
+	if err != nil {
+		log.Error("error getting default token values from db: ", err)
+	}
 	var priceProviders []ports.PriceProvider
 	for i:=0;i<len(priorityProviders);i++{
 		var prov ports.PriceProvider
-		prov, err = selector.Select(priorityProviders[i])
+		prov, err = selector.Select(priorityProviders[i], defaultTokensInfo)
 		if err != nil {
 			log.Error("Error getting provider "+priorityProviders[i]+": ",err)
 		}
 		priceProviders = append(priceProviders, prov)
 	}
 	return priceProviders, err
+}
+
+func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider string) map[uint]string {
+    for i :=0; i<len(defaultData); i++ {
+		var flag bool
+        for k, _ := range confData {
+			if k == defaultData[i].ID {
+				flag = true
+			}
+        }
+		if !flag {
+			//Add token info to the mapping
+			if provider == "bitfinex" {
+				confData[defaultData[i].ID] = defaultData[i].Symbol
+			} else if provider == "coingecko" {
+				confData[defaultData[i].ID] = defaultData[i].Address
+			}
+		}
+    }
+    return confData
 }
