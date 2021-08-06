@@ -78,7 +78,15 @@ There are two commands related to providers:
     ```bash
     $ priceupdater update-config --provider bitfinex --configFile assets/bitfinex.json
     ```
+###### Note: This action must be done for each provider we want to configure.
 
+### Priority configuration (Requirement)
+The next command allows configure the provider priority. The first provider will be chosen by default but if it fails during retrieving the price for a specific token, the service will try to get the price for this token using the next provider in the list.
+Run: 
+```
+change-priority --priority <provider_1>,<provider_2>,<provider_3>
+```
+###### Note: <provider_1> has the highest priority and <provider_2> the lowest
 
 ### Project Settings
 
