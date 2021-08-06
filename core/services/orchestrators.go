@@ -34,6 +34,6 @@ func (orchestrator *ProviderUpdateOrchestratorService) LoadAndExecutePriceProvid
 		log.Error("fail to retrive current provider: ", err.Error())
 		return err
 	}
-	orchestrator.priceUpdater.LoadProvider(providers)
+	orchestrator.priceUpdater.LoadProviders(providers)
 	return orchestrator.UpdatePrices()
 }

@@ -22,7 +22,7 @@ func NewPriceUpdaterService(ctx context.Context, providers []ports.PriceProvider
 	}
 }
 
-func (s *PriceUpdaterService) LoadProvider(providers []ports.PriceProvider) {
+func (s *PriceUpdaterService) LoadProviders(providers []ports.PriceProvider) {
 	s.pr = providers
 }
 
