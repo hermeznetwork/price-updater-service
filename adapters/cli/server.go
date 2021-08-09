@@ -30,8 +30,6 @@ func server(cfg config.Config) {
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
 	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
-	/* memorydb := memory.NewMemoryDB()
-	 */
 	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
 
 	// providers
@@ -52,6 +50,7 @@ func server(cfg config.Config) {
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 	orchestrator := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
+
 	// command
 	cmdUpdatePrice := command.NewUpdatePriceCommand(orchestrator)
 
