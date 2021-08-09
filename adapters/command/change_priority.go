@@ -6,14 +6,14 @@ import (
 )
 
 type ChangePriorityCommand struct {
-	Priority           string
-	srv                *services.ConfigUpdaterService
+	Priority string
+	srv      *services.ConfigUpdaterService
 }
 
 func NewChangePriorityCommand(priority string, srv *services.ConfigUpdaterService) ports.Command {
 	return &ChangePriorityCommand{
 		Priority: priority,
-		srv: srv,
+		srv:      srv,
 	}
 }
 

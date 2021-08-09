@@ -2,8 +2,8 @@ package uniswap
 
 import (
 	"context"
-	"math/big"
 	"github.com/hermeznetwork/hermez-node/log"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -45,7 +45,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 	for i := int64(0); i < registerTokenCount.Int64(); i++ {
 		tokenAddress, err := rollup.TokenList(nil, big.NewInt(i))
 		if err != nil {
-			log.Warn("error getting token addresses from smart contract: ",err)
+			log.Warn("error getting token addresses from smart contract: ", err)
 			continue
 		}
 		addresses[uint(i)] = tokenAddress
@@ -64,8 +64,8 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		usdtFilter := []common.Address{
 			common.HexToAddress(c.ethConf.UsdtAddress),
 		}
-		var tokens = [][]common.Address{usdtFilter, []common.Address{address}}
-		for i:=0; i<2; i++ {
+		var tokens = [][]common.Address{usdtFilter, {address}}
+		for i := 0; i < 2; i++ {
 			t, err := uniswapToken.FilterPairCreated(nil, tokens[1-i], tokens[i])
 			if err != nil {
 				log.Warn("error: ", err)
@@ -107,7 +107,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 	for i := 0; i < len(tokenErrs); i++ {
 		tokenAddress, err := rollup.TokenList(nil, big.NewInt(int64(tokenErrs[i])))
 		if err != nil {
-			log.Warn("error getting token addresses from smart contract: ",err)
+			log.Warn("error getting token addresses from smart contract: ", err)
 			continue
 		}
 		addresses[tokenErrs[i]] = tokenAddress
@@ -123,8 +123,8 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		usdtFilter := []common.Address{
 			common.HexToAddress(c.ethConf.UsdtAddress),
 		}
-		var tokens = [][]common.Address{usdtFilter, []common.Address{address}}
-		for i:=0; i<2; i++ {
+		var tokens = [][]common.Address{usdtFilter, {address}}
+		for i := 0; i < 2; i++ {
 			t, err := uniswapToken.FilterPairCreated(nil, tokens[1-i], tokens[i])
 			if err != nil {
 				log.Warn("error: ", err)

@@ -64,16 +64,16 @@ func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Contex
 		return nil, err
 	}
 	//Get default token info
-	defaultTokensInfo, err :=priceRepository.GetTokens(ctx, 0, 0, "ASC")
+	defaultTokensInfo, err := priceRepository.GetTokens(ctx, 0, 0, "ASC")
 	if err != nil {
 		log.Error("error getting default token values from db: ", err)
 	}
 	var priceProviders []ports.PriceProvider
-	for i:=0;i<len(priorityProviders);i++{
+	for i := 0; i < len(priorityProviders); i++ {
 		var prov ports.PriceProvider
 		prov, err = selector.Select(priorityProviders[i], defaultTokensInfo)
 		if err != nil {
-			log.Error("Error getting provider "+priorityProviders[i]+": ",err)
+			log.Error("Error getting provider "+priorityProviders[i]+": ", err)
 		}
 		priceProviders = append(priceProviders, prov)
 	}
@@ -81,13 +81,13 @@ func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Contex
 }
 
 func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider string) map[uint]string {
-    for i :=0; i<len(defaultData); i++ {
+	for i := 0; i < len(defaultData); i++ {
 		var flag bool
         for k, _ := range confData {
 			if k == defaultData[i].ID {
 				flag = true
 			}
-        }
+		}
 		if !flag {
 			//Add token info to the mapping
 			if provider == "bitfinex" {
@@ -96,6 +96,6 @@ func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider 
 				confData[defaultData[i].ID] = defaultData[i].Address
 			}
 		}
-    }
-    return confData
+	}
+	return confData
 }

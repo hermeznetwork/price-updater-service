@@ -36,12 +36,12 @@ func (s *PriceUpdaterService) GetTokens(fromItem uint, limit uint, order string)
 
 func (s *PriceUpdaterService) UpdatePrices() error {
 	var (
-		prices []map[uint]float64
+		prices    []map[uint]float64
 		tokenErrs []uint
-		err error
+		err       error
 	)
 	// Get prices from providers
-	for i:=0; i<len(s.pr); i++{
+	for i := 0; i < len(s.pr); i++ {
 		if len(tokenErrs) == 0 {
 			prices, tokenErrs, err = s.pr[i].GetPrices(s.ctx)
 			if err != nil || len(tokenErrs) != 0 {

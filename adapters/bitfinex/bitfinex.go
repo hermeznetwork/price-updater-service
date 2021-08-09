@@ -88,7 +88,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
 	log.Debug("Bitfinex")
 	var tokErrs []uint
-	for i:=0; i<len(tokenErrs); i++ {
+	for i := 0; i < len(tokenErrs); i++ {
 		tokenID := tokenErrs[i]
 		symbol := c.symbols[uint(tokenID)]
 		url := URL + symbol + URLExtraParams

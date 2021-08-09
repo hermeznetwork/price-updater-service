@@ -166,6 +166,6 @@ func (cp *ProviderConfigRepository) PriorityProviders() ([]string, error) {
 		return []string{}, errors.New("there no priority defined")
 	}
 	priorityArr := strings.Split(string(priority), ",")
-	
+
 	return priorityArr, tx.Commit()
 }

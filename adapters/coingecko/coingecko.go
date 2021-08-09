@@ -2,8 +2,8 @@ package coingecko
 
 import (
 	"context"
-	"net/http"
 	"github.com/hermeznetwork/hermez-node/log"
+	"net/http"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -78,7 +78,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		value := data[itemResponseKey]["usd"]
 		if res.StatusCode != http.StatusOK || len(data) == 0 {
 			tokenErrs = append(tokenErrs, tokenID)
-			log.Warn("http error: ", res.StatusCode, " Data received: ", data)
+			log.Warn("http error: ", res.StatusCode, ". TokenId: ", tokenID, ". Data received: ", data)
 			continue
 		}
 		result := make(map[uint]float64)
@@ -95,7 +95,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
 	log.Debug("CoinGecko")
 	var tokErrs []uint
-	for i:=0; i<len(tokenErrs); i++ {
+	for i := 0; i < len(tokenErrs); i++ {
 		tokenID := tokenErrs[i]
 		address := c.addresses[uint(tokenID)]
 		url := getUrlByAdressValue(address)
