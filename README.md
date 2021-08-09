@@ -418,7 +418,7 @@ Server: cloudflare
 
 ### Filter currencies
 
-- Endpoint: /v1/currencies?symbols="EUR|JPY"
+- Endpoint: /v1/currencies?symbols=EUR|JPY
 - HTTP Method: GET
 - Details: Returns the price for a filtered currency.
 
