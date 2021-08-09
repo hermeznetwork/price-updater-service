@@ -65,21 +65,7 @@ func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Contex
 		log.Error("try get the current provider: ", err.Error())
 		return nil, err
 	}
-	//Get default token info
-	defaultTokensInfo, err := selector.tr.GetTokens(ctx, 0, 0, "ASC")
-	if err != nil {
-		log.Error("error getting default token values from db: ", err)
-	}
-	var priceProviders []ports.PriceProvider
-	for i := 0; i < len(priorityProviders); i++ {
-		var prov ports.PriceProvider
-		prov, err = selector.Select(priorityProviders[i], defaultTokensInfo)
-		if err != nil {
-			log.Error("Error getting provider "+priorityProviders[i]+": ", err)
-		}
-		priceProviders = append(priceProviders, prov)
-	}
-	return priceProviders, err
+	return selector.getProviderWithDefaultTokens(ctx, priorityProviders)
 }
 
 func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider string) map[uint]string {
@@ -100,4 +86,23 @@ func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider 
 		}
 	}
 	return confData
+}
+
+func (selector *ProviderSelectorService) getProviderWithDefaultTokens(ctx context.Context, priorityProviders []string) ([]ports.PriceProvider, error) {
+	//Get default token info
+	defaultTokensInfo, err := selector.tr.GetTokens(ctx, 0, 0, "ASC")
+	if err != nil {
+		log.Error("error getting default token values from db: ", err)
+	}
+	var priceProviders []ports.PriceProvider
+	for i := 0; i < len(priorityProviders); i++ {
+		var prov ports.PriceProvider
+		prov, err = selector.Select(priorityProviders[i], defaultTokensInfo)
+		if err != nil {
+			log.Error("error getting provider "+priorityProviders[i]+": ", err)
+			continue
+		}
+		priceProviders = append(priceProviders, prov)
+	}
+	return priceProviders, err
 }
