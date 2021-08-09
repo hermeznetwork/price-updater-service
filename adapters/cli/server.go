@@ -32,16 +32,17 @@ func server(cfg config.Config) {
 	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
 	/* memorydb := memory.NewMemoryDB()
 	 */
-	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
 
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltConn)
 
+	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg, priceRepository)
+
 	// providers
 	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
-	tokenProviders, err := priceSelector.PrioritizedProviders(ctx, priceRepository)
+	tokenProviders, err := priceSelector.PrioritizedProviders(ctx)
 	if err != nil {
 		log.Error("try server start up:", err.Error())
 		os.Exit(1)

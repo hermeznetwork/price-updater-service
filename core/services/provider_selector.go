@@ -16,12 +16,14 @@ import (
 type ProviderSelectorService struct {
 	brepo ports.ConfigProviderRepository
 	cfg   config.Config
+	tr    ports.TokenRepository
 }
 
-func NewProviderSelectorService(brepo ports.ConfigProviderRepository, cfg config.Config) *ProviderSelectorService {
+func NewProviderSelectorService(brepo ports.ConfigProviderRepository, cfg config.Config, priceRepository ports.TokenRepository) *ProviderSelectorService {
 	return &ProviderSelectorService{
 		brepo: brepo,
 		cfg:   cfg,
+		tr: priceRepository,
 	}
 }
 
@@ -55,7 +57,7 @@ func (selector *ProviderSelectorService) Select(name string, defaultTokensInfo [
 		return nil, nil
 	}
 }
-func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Context, priceRepository ports.TokenRepository) ([]ports.PriceProvider, error) {
+func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Context) ([]ports.PriceProvider, error) {
 	var err error
 	//Get priority from db
 	priorityProviders, err := selector.brepo.PriorityProviders()
@@ -64,7 +66,7 @@ func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Contex
 		return nil, err
 	}
 	//Get default token info
-	defaultTokensInfo, err := priceRepository.GetTokens(ctx, 0, 0, "ASC")
+	defaultTokensInfo, err := selector.tr.GetTokens(ctx, 0, 0, "ASC")
 	if err != nil {
 		log.Error("error getting default token values from db: ", err)
 	}
