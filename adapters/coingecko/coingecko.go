@@ -118,9 +118,9 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 			itemResponseKey = address
 		}
 		value := data[itemResponseKey]["usd"]
-		if res.StatusCode != http.StatusOK {
+		if res.StatusCode != http.StatusOK || len(data) == 0 {
 			tokErrs = append(tokErrs, tokenID)
-			log.Warn("http error: ", res.StatusCode, res.Status)
+			log.Warn("http error: ", res.StatusCode, ". TokenId: ", tokenID, ". Data received: ", data)
 			continue
 		}
 		result := make(map[uint]float64)
