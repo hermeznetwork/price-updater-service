@@ -65,7 +65,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		}
 
 		if data == nil {
-			log.Warn("data received empty. Skiping token: %s\n", symbol)
+			log.Warn("data received empty. Skiping token: ", symbol)
 			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
