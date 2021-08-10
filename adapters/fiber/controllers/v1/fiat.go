@@ -57,8 +57,12 @@ func (p *CurrencyController) GetFiatPrices(ctx *fiber.Ctx) error {
 	if order == "" {
 		order = "ASC"
 	}
+	base := ctx.Query("base")
+	if base == "" {
+		base = "USD"
+	}
 	symbols := normalizeSymbolFilter(ctx.Query("symbols"))
-	prices, err := p.svc.GetPrices(uint(limit), uint(fromItem), order, symbols)
+	prices, err := p.svc.GetPrices(base, uint(limit), uint(fromItem), order, symbols)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),

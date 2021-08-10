@@ -24,9 +24,9 @@ func (f *FiatUpdaterService) GetPrice(currency string) (domain.FiatPrice, error)
 	return f.fr.GetFiatPrice(ctx, currency)
 }
 
-func (f *FiatUpdaterService) GetPrices(limit uint, fromItem uint, order string, symbolFilters []string) ([]domain.FiatPrice, error) {
+func (f *FiatUpdaterService) GetPrices(base string, limit uint, fromItem uint, order string, symbolFilters []string) ([]domain.FiatPrice, error) {
 	ctx := context.Background()
-	return f.fr.GetFiatPrices(ctx, "USD", limit, fromItem, order, symbolFilters)
+	return f.fr.GetFiatPrices(ctx, base, limit, fromItem, order, symbolFilters)
 }
 
 func (f *FiatUpdaterService) UpdatePrices() error {
