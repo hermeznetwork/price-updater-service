@@ -2,9 +2,9 @@ package fiber
 
 import (
 	"fmt"
-	"strings"
 
 	fb "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	v1 "github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers/v1"
 	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/hermeznetwork/price-updater-service/core/services"
@@ -26,36 +26,14 @@ func NewServer(cc *v1.CurrencyController, tc *v1.TokensController, pcr *services
 		TokensController:   tc,
 	}
 
-	server.fiber.Use(func(ctx *fb.Ctx) error {
-		origins, err := server.pcr.LoadOriginValue()
-		if err != nil {
-			return err
-		}
-		origin := ctx.Get(fb.HeaderOrigin)
-		allowOrigin := ""
-		allowOrigins := strings.Split(strings.Replace(origins, " ", "", -1), ",")
-		for _, allowed := range allowOrigins {
-			if allowed == "*" {
-				allowOrigin = origin
-				break
+	allowOrigins, err := server.pcr.LoadOriginValue()
+	if err != nil {
+		allowOrigins = "*"
+	}
 
-			}
-			if allowed == origin {
-				allowOrigin = allowed
-				break
-			}
-
-			if matchSubdomain(origin, allowed) {
-				allowOrigin = origin
-				break
-			}
-		}
-
-		if allowOrigin == "" {
-			return ctx.SendStatus(fb.StatusNoContent)
-		}
-		return ctx.Next()
-	})
+	server.fiber.Use(cors.New(cors.Config{
+		AllowOrigins: allowOrigins,
+	}))
 
 	server.fiber.Get("v1/tokens", server.GetTokenPrices)
 	server.fiber.Get("v1/tokens/:token_id", server.GetTokenPrice)

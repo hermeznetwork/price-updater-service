@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
@@ -56,7 +57,12 @@ func (p *CurrencyController) GetFiatPrices(ctx *fiber.Ctx) error {
 	if order == "" {
 		order = "ASC"
 	}
-	prices, err := p.svc.GetPrices(uint(limit), uint(fromItem), order)
+	base := ctx.Query("base")
+	if base == "" {
+		base = "USD"
+	}
+	symbols := normalizeSymbolFilter(ctx.Query("symbols"))
+	prices, err := p.svc.GetPrices(base, uint(limit), uint(fromItem), order, symbols)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -83,4 +89,13 @@ func domainToHttpCurrencies(prices []domain.FiatPrice) []fiatOut {
 		returnTokens = append(returnTokens, domainToHttpCurrency(p))
 	}
 	return returnTokens
+}
+
+func normalizeSymbolFilter(rawFilter string) []string {
+	var symbols []string
+	if rawFilter == "" {
+		return symbols
+	}
+	symbols = strings.Split(rawFilter, "|")
+	return symbols
 }
