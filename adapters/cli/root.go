@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 
 	"github.com/hermeznetwork/price-updater-service/config"
@@ -24,6 +24,7 @@ func init() {
 	rootCmd.AddCommand(changeProviderCmd)
 	rootCmd.AddCommand(setupOriginCmd)
 	rootCmd.AddCommand(updateStaticTokenCmd)
+	rootCmd.AddCommand(priorityCmd)
 
 	serverCmd.Flags().String("pg-user", "", "postgresql username")
 	serverCmd.Flags().String("pg-pass", "", "postgresql password")
@@ -37,7 +38,7 @@ func init() {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
 }

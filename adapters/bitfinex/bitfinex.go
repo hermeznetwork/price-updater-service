@@ -2,9 +2,7 @@ package bitfinex
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"net/http"
 	"time"
 
@@ -46,24 +44,29 @@ func NewClient(symbols map[uint]string) ports.PriceProvider {
 	}
 }
 
-func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
+func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, error) {
+	log.Debug("Bitfinex")
 	prices := make([]map[uint]float64, len(c.symbols))
-
+	var tokenErrs []uint
 	for tokenID, symbol := range c.symbols {
 		url := URL + symbol + URLExtraParams
 		req, err := c.cli.New().Get(url).Request()
 		if err != nil {
-			return prices, err
+			tokenErrs = append(tokenErrs, tokenID)
+			continue
 		}
 
 		var data interface{}
 		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
 		if err != nil {
-			return prices, err
+			log.Warn("error: ", err)
+			tokenErrs = append(tokenErrs, tokenID)
+			continue
 		}
 
 		if data == nil {
-			log.Printf("skiping token: %s\n", symbol)
+			log.Warn("data received empty. Skiping token: ", symbol)
+			tokenErrs = append(tokenErrs, tokenID)
 			continue
 		}
 
@@ -71,11 +74,55 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, error) {
 		result := make(map[uint]float64)
 		value := data.([]interface{})[6].(float64)
 		if res.StatusCode != http.StatusOK {
-			return prices, errors.New(fmt.Sprintf("http error: %d %s", res.StatusCode, res.Status))
+			tokenErrs = append(tokenErrs, tokenID)
+			log.Warn("http error: ", res.StatusCode, res.Status)
+			continue
 		}
 		result[tokenID] = value
 
 		prices = append(prices, result)
 	}
-	return prices, nil
+	return prices, tokenErrs, nil
+}
+
+func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64, tokenErrs []uint) ([]map[uint]float64, []uint, error) {
+	log.Debug("Bitfinex")
+	var tokErrs []uint
+	for i := 0; i < len(tokenErrs); i++ {
+		tokenID := tokenErrs[i]
+		symbol := c.symbols[uint(tokenID)]
+		url := URL + symbol + URLExtraParams
+		req, err := c.cli.New().Get(url).Request()
+		if err != nil {
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+
+		var data interface{}
+		res, err := c.cli.Do(req.WithContext(ctx), &data, nil)
+		if err != nil {
+			log.Warn("error: ", err)
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+
+		if data == nil {
+			log.Warn("data received empty. Skiping token: ", symbol)
+			tokErrs = append(tokErrs, tokenID)
+			continue
+		}
+
+		// The token price is received inside an array in the sixth position
+		result := make(map[uint]float64)
+		value := data.([]interface{})[6].(float64)
+		if res.StatusCode != http.StatusOK {
+			tokErrs = append(tokErrs, tokenID)
+			log.Warn("http error: ", res.StatusCode, res.Status)
+			continue
+		}
+		result[tokenID] = value
+
+		prices = append(prices, result)
+	}
+	return prices, tokErrs, nil
 }

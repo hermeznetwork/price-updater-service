@@ -2,28 +2,28 @@ package services
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
 )
 
 type PriceUpdaterService struct {
-	pr  ports.PriceProvider
+	pr  []ports.PriceProvider
 	tr  ports.TokenRepository
 	ctx context.Context
 }
 
-func NewPriceUpdaterService(ctx context.Context, provider ports.PriceProvider, tr ports.TokenRepository) *PriceUpdaterService {
+func NewPriceUpdaterService(ctx context.Context, providers []ports.PriceProvider, tr ports.TokenRepository) *PriceUpdaterService {
 	return &PriceUpdaterService{
-		pr:  provider,
+		pr:  providers,
 		tr:  tr,
 		ctx: ctx,
 	}
 }
 
-func (s *PriceUpdaterService) LoadProvider(provider ports.PriceProvider) {
-	s.pr = provider
+func (s *PriceUpdaterService) LoadProviders(providers []ports.PriceProvider) {
+	s.pr = providers
 }
 
 func (s *PriceUpdaterService) GetToken(tokenID uint) (domain.Token, error) {
@@ -35,17 +35,35 @@ func (s *PriceUpdaterService) GetTokens(fromItem uint, limit uint, order string)
 }
 
 func (s *PriceUpdaterService) UpdatePrices() error {
-	// get prices from provider
-	prices, err := s.pr.GetPrices(s.ctx)
-	if err != nil {
-		return err
+	var (
+		prices    []map[uint]float64
+		tokenErrs []uint
+		err       error
+	)
+	// Get prices from providers
+	for i := 0; i < len(s.pr); i++ {
+		if len(tokenErrs) == 0 {
+			prices, tokenErrs, err = s.pr[i].GetPrices(s.ctx)
+			if err != nil || len(tokenErrs) != 0 {
+				log.Warn("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
+				continue
+			}
+		} else {
+			log.Info("Checking next provider")
+			prices, tokenErrs, err = s.pr[i].GetFailedPrices(s.ctx, prices, tokenErrs)
+			if err != nil || len(tokenErrs) != 0 {
+				log.Warn("Error getting prices from provider: ", err, " TokenErrs is ", tokenErrs)
+				continue
+			}
+		}
+		break
 	}
 
 	for _, price := range prices {
 		for tokenID, value := range price {
 			err = s.tr.UpdateTokenPrice(s.ctx, tokenID, value)
 			if err != nil {
-				log.Println("try update token price: ", err.Error())
+				log.Error("try update token price: ", err.Error())
 			}
 		}
 	}

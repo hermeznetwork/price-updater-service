@@ -2,7 +2,7 @@ package background
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"sync"
 	"time"
 
@@ -33,15 +33,15 @@ func (b *Background) StartUpdateProcess() {
 	for {
 		select {
 		case <-b.ctx.Done():
-			log.Println("graceful shutdown...")
+			log.Info("graceful shutdown...")
 			b.wg.Done()
 			return
 		case <-time.After(b.cfg.TimeToUpdate):
-			log.Println("Executing...")
+			log.Info("Executing...")
 			if err := b.cmd.Execute(); err != nil {
-				log.Println("error while try executing: ", err.Error())
+				log.Error("error while try executing: ", err.Error())
 			}
-			log.Println("...done.")
+			log.Info("...done.")
 		}
 	}
 }

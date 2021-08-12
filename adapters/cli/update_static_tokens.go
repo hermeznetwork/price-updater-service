@@ -2,7 +2,7 @@ package cli
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/postgres"
@@ -30,15 +30,15 @@ func init() {
 }
 
 func updateStaticToken(cfg config.Config) {
-	log.Printf("update static token %d\n", staticTokenID)
+	log.Info("update static token %d\n", staticTokenID)
 	ctx := context.Background()
 	postgresCon := postgres.NewConnection(ctx, &cfg.Postgres)
 	tokenRepository := postgres.NewTokenRepository(postgresCon)
 	tokenService := services.NewPriceUpdaterService(ctx, nil, tokenRepository)
 	err := tokenService.UpdatePrice(staticTokenID, newStaticTokenPrice)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
-	log.Println("static token value updated!")
+	log.Info("static token value updated!")
 }

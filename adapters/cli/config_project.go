@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
@@ -25,13 +25,13 @@ func init() {
 }
 
 func setupOrigin(cfg config.Config) {
-	log.Println("set up origin list")
+	log.Info("set up origin list")
 
 	bboltCon := bbolt.NewConnection(cfg.Bbolt)
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltCon)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
 	if err := projectConfigService.SaveOriginValue(origins); err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
 }

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
@@ -28,15 +28,15 @@ func init() {
 }
 
 func changeProvider(cfg config.Config) {
-	log.Println("running change provider")
+	log.Info("running change provider")
 	bboltCon := bbolt.NewConnection(cfg.Bbolt)
 	configProviderRepository := bbolt.NewProviderConfigRepository(bboltCon)
 	configUpdaterServices := services.NewConfigUpdaterServices(configProviderRepository)
 	changeProviderCmd := command.NewChangeProviderCommand(changeProviderName, configUpdaterServices)
 	err := changeProviderCmd.Execute()
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
-	log.Println("provider changed!")
+	log.Info("provider changed!")
 }

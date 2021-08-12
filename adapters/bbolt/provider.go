@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
@@ -123,4 +124,48 @@ func (cp *ProviderConfigRepository) ChangeRunningProvider(provider string) error
 	}
 
 	return tx.Commit()
+}
+
+func (cp *ProviderConfigRepository) ChangePriority(priority string) error {
+	cp.conn.Start()
+	defer cp.conn.End()
+	tx, err := cp.conn.db.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	bkt, err := tx.CreateBucketIfNotExists([]byte("priorityProvider"))
+	if err != nil {
+		return err
+	}
+
+	err = bkt.Put([]byte("priority"), []byte(priority))
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (cp *ProviderConfigRepository) PriorityProviders() ([]string, error) {
+	cp.conn.Start()
+	defer cp.conn.End()
+	tx, err := cp.conn.db.Begin(true)
+	if err != nil {
+		return []string{}, err
+	}
+
+	bkt, err := tx.CreateBucketIfNotExists([]byte("priorityProvider"))
+	if err != nil {
+		return []string{}, err
+	}
+
+	priority := bkt.Get([]byte("priority"))
+	if priority == nil {
+		return []string{}, errors.New("there no priority defined")
+	}
+	priorityArr := strings.Split(string(priority), ",")
+
+	return priorityArr, tx.Commit()
 }

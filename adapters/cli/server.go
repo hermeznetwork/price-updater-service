@@ -2,7 +2,7 @@ package cli
 
 import (
 	"context"
-	"log"
+	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 	"os/signal"
 
@@ -30,23 +30,24 @@ func server(cfg config.Config) {
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
 	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
-	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg)
-
-	// providers
-	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
-	tokenProvider, err := priceSelector.CurrentProvider()
-	if err != nil {
-		log.Println("try server start up:", err.Error())
-		os.Exit(1)
-	}
 
 	// repostitory
 	priceRepository := postgres.NewTokenRepository(postgresConn)
 	fiatRepository := postgres.NewFiatPricesRepository(postgresConn)
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltConn)
 
+	priceSelector := services.NewProviderSelectorService(configProviderRepo, cfg, priceRepository)
+
+	// providers
+	fiatProvider := fiat.NewClient(cfg.Fiat.APIKey)
+	tokenProviders, err := priceSelector.PrioritizedProviders(ctx)
+	if err != nil {
+		log.Error("try server start up: ", err.Error())
+		os.Exit(1)
+	}
+
 	// service
-	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProvider, priceRepository)
+	tokenPriceUpdateService := services.NewPriceUpdaterService(ctx, tokenProviders, priceRepository)
 	fiatPriceUpdateService := services.NewFiatUpdaterServices(fiatRepository, fiatProvider)
 	orchestrator := services.NewPriceUpdateOrchestratorService(priceSelector, tokenPriceUpdateService, fiatPriceUpdateService)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
