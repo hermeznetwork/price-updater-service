@@ -159,7 +159,6 @@ The config object means: The key is the `tokenID` from your hermez-node database
 ## API
 
 There is a list of endpoints (and examples) that can be called on the Price Update Service. You can see these examples in the Postman Collection file at the project's root folder.
-First of all, the API has a requirement for all requests, the user must set the **Origin** header even if the **Origin** is not registered on the project.
 
 - _All examples have been run with [Httpie](https://httpie.io/)_
 
@@ -171,7 +170,7 @@ First of all, the API has a requirement for all requests, the user must set the 
 - Details: This will expose if the server is running.
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/health Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/health
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fdf2f28c825f9-GIG
@@ -198,7 +197,7 @@ Healthy
 _We omitted some tokens in the response to make it more readable_
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/tokens Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/tokens
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe041ddd6f84b-GIG
@@ -272,7 +271,7 @@ Transfer-Encoding: chunked
 
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/tokens/17 Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/tokens/17
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe6ec6910275e-GIG
@@ -304,7 +303,7 @@ If you try to get a token that doesn't exists on Price Updater:
 
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/tokens/171 Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/tokens/171
 HTTP/1.1 404 Not Found
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe7d70f2a2603-GIG
@@ -329,7 +328,7 @@ Server: cloudflare
 - Details: Returns a list of currencies prices.
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/currencies
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe9531fa32599-GIG
@@ -381,7 +380,7 @@ Transfer-Encoding: chunked
 - Details: Returns the price for a specific currency.
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies/EUR Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/currencies/EUR
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fea8b9912275e-GIG
@@ -407,7 +406,7 @@ Transfer-Encoding: chunked
 If you try to get a currency that doesn't exists on Price Updater:
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies/AOE Origin:my-origin
+☁  ~  http https://priceupdater.hermez.io/v1/currencies/AOE
 HTTP/1.1 404 Not Found
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678feb8eec6b2616-GIG
@@ -424,3 +423,43 @@ Server: cloudflare
     "message": "currency AOE not found"
 }
 ```
+
+### Filter currencies
+
+- Endpoint: /v1/currencies?base=USD&symbols=EUR|JPY
+- HTTP Method: GET
+- Details: Returns the price for a filtered currency.
+
+
+```cmd
+☁  ~  http https://priceupdater.hermez.io/v1/currencies symbols=="EUR|JPY"
+HTTP/1.1 200 OK
+CF-Cache-Status: DYNAMIC
+CF-RAY: 678fe9531fa32599-GIG
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Type: application/json
+Date: Tue, 03 Aug 2021 13:32:21 GMT
+Expect-CT: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+Last-Modified: Tue, 03 Aug 2021 13:32:21 GMT
+NEL: {"report_to":"cf-nel","max_age":604800}
+Report-To: {"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=Z%2FkQ4PDo%2F6j7tMUzzdOsrS9qNpJlpuzalOy8zy%2BYzJwYplD0%2ByuCU8hFxJo1IuZq2TLPP2e7Q7CEUp8Extjjx3joGBCxKgpaYU5skIZSGxGmGCcpVodgVBi9yGEGKfdQUgA1aI2rjiwQL2OXcl8HQLi%2Byng%3D"}],"group":"cf-nel","max_age":604800}
+Server: cloudflare
+Transfer-Encoding: chunked
+
+{
+    "currencies": [
+        {
+            "baseCurrency": "USD",
+            "currency": "EUR",
+            "lastUpdate": "2021-08-09T10:32:26.296803Z",
+            "price": 0.850602
+        },
+        {
+            "baseCurrency": "USD",
+            "currency": "JPY",
+            "lastUpdate": "2021-08-09T10:32:26.298462Z",
+            "price": 110.168013
+        }
+    ]
+}
