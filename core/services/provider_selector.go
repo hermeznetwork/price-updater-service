@@ -106,7 +106,7 @@ func (selector *ProviderSelectorService) getProviderWithDefaultTokens(ctx contex
 		priceProviders = append(priceProviders, prov)
 	}
 	if len(priceProviders) == 0 {
-		return priceProviders, fmt.Errorf("no Priority provider specified or wrong provider names")
+		return priceProviders, fmt.Errorf("no priority provider specified or wrong provider name")
 	}
 	return priceProviders, nil
 }
