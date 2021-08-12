@@ -90,10 +90,14 @@ change-priority --priority <provider_1>,<provider_2>,<provider_3>
 
 ### Project Settings
 
-There is just one command for project settings:
+There is two commands for project settings:
 
 1. `setup-origin --origins "items,comma,separated"`
     This command will set up hostnames that the system will accept as incoming requests. The default value is `*`, which means it accepts all requests. 
+
+2. `setup-apikey --apiKey "pr1c3upd4t3r"`
+    This command will set up an apiKey that the system will accept as incoming requests. The default value is `pr1c3upd4t3r`.
+
 
 ### Update Static Tokens
 
@@ -159,6 +163,7 @@ The config object means: The key is the `tokenID` from your hermez-node database
 ## API
 
 There is a list of endpoints (and examples) that can be called on the Price Update Service. You can see these examples in the Postman Collection file at the project's root folder.
+The API has a HEADER required called `X-API-KEY`. To execute any endpoint's from Price Updater, you should pass it.
 
 - _All examples have been run with [Httpie](https://httpie.io/)_
 
@@ -170,7 +175,7 @@ There is a list of endpoints (and examples) that can be called on the Price Upda
 - Details: This will expose if the server is running.
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/health
+☁  ~  http https://priceupdater.hermez.io/v1/health X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fdf2f28c825f9-GIG
@@ -197,7 +202,7 @@ Healthy
 _We omitted some tokens in the response to make it more readable_
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/tokens
+☁  ~  http https://priceupdater.hermez.io/v1/tokens X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe041ddd6f84b-GIG
@@ -271,7 +276,7 @@ Transfer-Encoding: chunked
 
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/tokens/17
+☁  ~  http https://priceupdater.hermez.io/v1/tokens/17 X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe6ec6910275e-GIG
@@ -303,7 +308,7 @@ If you try to get a token that doesn't exists on Price Updater:
 
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/tokens/171
+☁  ~  http https://priceupdater.hermez.io/v1/tokens/171 X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 404 Not Found
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe7d70f2a2603-GIG
@@ -328,7 +333,7 @@ Server: cloudflare
 - Details: Returns a list of currencies prices.
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies
+☁  ~  http https://priceupdater.hermez.io/v1/currencies X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe9531fa32599-GIG
@@ -380,7 +385,7 @@ Transfer-Encoding: chunked
 - Details: Returns the price for a specific currency.
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies/EUR
+☁  ~  http https://priceupdater.hermez.io/v1/currencies/EUR X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fea8b9912275e-GIG
@@ -406,7 +411,7 @@ Transfer-Encoding: chunked
 If you try to get a currency that doesn't exists on Price Updater:
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies/AOE
+☁  ~  http https://priceupdater.hermez.io/v1/currencies/AOE X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 404 Not Found
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678feb8eec6b2616-GIG
@@ -432,7 +437,7 @@ Server: cloudflare
 
 
 ```cmd
-☁  ~  http https://priceupdater.hermez.io/v1/currencies symbols=="EUR|JPY"
+☁  ~  http https://priceupdater.hermez.io/v1/currencies symbols=="EUR|JPY" X-API-KEY:"pr1c3upd4t3r"
 HTTP/1.1 200 OK
 CF-Cache-Status: DYNAMIC
 CF-RAY: 678fe9531fa32599-GIG
