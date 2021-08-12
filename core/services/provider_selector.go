@@ -72,7 +72,7 @@ func (selector *ProviderSelectorService) PrioritizedProviders(ctx context.Contex
 func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider string) map[uint]string {
 	for i := 0; i < len(defaultData); i++ {
 		var flag bool
-        for k, _ := range confData {
+		for k, _ := range confData {
 			if k == defaultData[i].ID {
 				flag = true
 			}
