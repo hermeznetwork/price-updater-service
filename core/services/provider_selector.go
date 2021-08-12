@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hermeznetwork/hermez-node/log"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
@@ -99,10 +100,13 @@ func (selector *ProviderSelectorService) getProviderWithDefaultTokens(ctx contex
 		var prov ports.PriceProvider
 		prov, err = selector.Select(priorityProviders[i], defaultTokensInfo)
 		if err != nil {
-			log.Error("error getting provider "+priorityProviders[i]+": ", err)
+			log.Warn("error getting provider "+priorityProviders[i]+": ", err)
 			continue
 		}
 		priceProviders = append(priceProviders, prov)
 	}
-	return priceProviders, err
+	if len(priceProviders) == 0 {
+		return priceProviders, fmt.Errorf("no Priority provider specified or wrong provider names")
+	}
+	return priceProviders, nil
 }
