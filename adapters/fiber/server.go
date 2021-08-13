@@ -38,6 +38,10 @@ func NewServer(cc *v1.CurrencyController, tc *v1.TokensController, pcr *services
 
 	server.fiber.Use(func(c *fb.Ctx) error {
 		userKey := c.Get("X-API-KEY")
+		if userKey == "" {
+			return c.Next()
+		}
+
 		if userKey != apiKey {
 			return c.SendStatus(fb.StatusUnauthorized)
 		}
