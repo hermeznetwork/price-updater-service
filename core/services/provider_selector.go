@@ -52,7 +52,8 @@ func (selector *ProviderSelectorService) Select(name string, defaultTokensInfo [
 		allTokens := mergeTokens(defaultTokensInfo, configProvidiver.MappingBetweenNetwork, name)
 		return coingecko.NewClient(allTokens), nil
 	case "uniswap":
-		return uniswap.NewClient(selector.cfg.EthConfig)
+		allTokens := mergeTokens(defaultTokensInfo, configProvidiver.MappingBetweenNetwork, name)
+		return uniswap.NewClient(selector.cfg.EthConfig, allTokens)
 	default:
 		log.Error("provider not found")
 		return nil, nil
@@ -81,7 +82,7 @@ func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider 
 			//Add token info to the mapping
 			if provider == "bitfinex" {
 				confData[defaultData[i].ID] = defaultData[i].Symbol
-			} else if provider == "coingecko" {
+			} else if provider == "coingecko" ||  provider == "uniswap" {
 				confData[defaultData[i].ID] = defaultData[i].Address
 			}
 		}
