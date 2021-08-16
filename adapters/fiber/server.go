@@ -31,6 +31,23 @@ func NewServer(cc *v1.CurrencyController, tc *v1.TokensController, pcr *services
 		allowOrigins = "*"
 	}
 
+	apiKey, err := server.pcr.LoadAPIKey()
+	if err != nil {
+		apiKey = "pr1c3upd4t3r"
+	}
+
+	server.fiber.Use(func(c *fb.Ctx) error {
+		userKey := c.Get("X-API-KEY")
+		if userKey == "" {
+			return c.Next()
+		}
+
+		if userKey != apiKey {
+			return c.SendStatus(fb.StatusUnauthorized)
+		}
+		return c.Next()
+	})
+
 	server.fiber.Use(cors.New(cors.Config{
 		AllowOrigins: allowOrigins,
 	}))

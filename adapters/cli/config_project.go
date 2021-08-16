@@ -11,6 +11,7 @@ import (
 )
 
 var origins string
+var apiKey string
 
 var setupOriginCmd = &cobra.Command{
 	Use:   "setup-origin",
@@ -20,8 +21,17 @@ var setupOriginCmd = &cobra.Command{
 	},
 }
 
+var setupAPIKeyCmd = &cobra.Command{
+	Use:   "setup-apikey",
+	Short: "setup apikey allowed to access API",
+	Run: func(cmd *cobra.Command, args []string) {
+		setupAPIKey(cfg)
+	},
+}
+
 func init() {
 	setupOriginCmd.Flags().StringVar(&origins, "origins", "*", "origin list comma separated")
+	setupAPIKeyCmd.Flags().StringVar(&apiKey, "apiKey", "pr1c3upd4t3r", "api key used to access endpoints")
 }
 
 func setupOrigin(cfg config.Config) {
@@ -31,6 +41,18 @@ func setupOrigin(cfg config.Config) {
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltCon)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
 	if err := projectConfigService.SaveOriginValue(origins); err != nil {
+		log.Error(err.Error())
+		os.Exit(1)
+	}
+}
+
+func setupAPIKey(cfg config.Config) {
+	log.Info("set up apikey")
+
+	bboltCon := bbolt.NewConnection(cfg.Bbolt)
+	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltCon)
+	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
+	if err := projectConfigService.SaveAPIKey(apiKey); err != nil {
 		log.Error(err.Error())
 		os.Exit(1)
 	}

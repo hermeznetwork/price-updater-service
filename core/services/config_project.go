@@ -21,3 +21,11 @@ func (pc *ProjectConfigService) LoadOriginValue() (string, error) {
 func (pc *ProjectConfigService) SaveOriginValue(origin string) error {
 	return pc.pcr.SaveAllowedOrigin(origin)
 }
+
+func (pc *ProjectConfigService) LoadAPIKey() (string, error) {
+	return pc.pcr.LoadAPIKey()
+}
+
+func (pc *ProjectConfigService) SaveAPIKey(apiKey string) error {
+	return pc.pcr.SaveAPIKey(apiKey)
+}
