@@ -1,0 +1,11 @@
+{
+    "provider": "bitfinex",
+    "config": {
+        "0": "ETH",
+        "1": "HEZ",
+        "2": "DAI",
+        "3": "UNI",
+        "4": "LINK:",
+        "5": "GAS"
+    }
+}
