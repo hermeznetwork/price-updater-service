@@ -29,13 +29,16 @@ func NewConnection(ctx context.Context, cfg *config.PostgresConfig) *Connection 
 		q.Add("sslmode", "disable")
 	}
 
-	q.Add("connect_timeout", "600")
 	dbURL.RawQuery = q.Encode()
 	dbURLStr := dbURL.String()
 
 	db, err := sql.Open("postgres", dbURLStr)
 	if err != nil {
 		panic(fmt.Sprintf("can't connect to postgres error: %s", err.Error()))
+	}
+
+	if err = db.Ping(); err != nil {
+		panic(fmt.Sprintf("can't estabilish connection with postgres: %s", err.Error()))
 	}
 
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
