@@ -1,8 +1,9 @@
 package cli
 
 import (
-	"github.com/hermeznetwork/hermez-node/log"
 	"os"
+
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
 	"github.com/hermeznetwork/price-updater-service/adapters/command"
@@ -37,4 +38,5 @@ func changePriority(priority string) {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
+	log.Info("priority established: ", priority)
 }
