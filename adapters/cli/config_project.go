@@ -1,8 +1,9 @@
 package cli
 
 import (
-	"github.com/hermeznetwork/hermez-node/log"
 	"os"
+
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
 	"github.com/hermeznetwork/price-updater-service/config"
@@ -44,6 +45,7 @@ func setupOrigin(cfg config.Config) {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
+	log.Info("origin list updated!")
 }
 
 func setupAPIKey(cfg config.Config) {
