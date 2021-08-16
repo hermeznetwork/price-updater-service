@@ -41,5 +41,5 @@ func updateConfig(cfg config.Config) {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
-	log.Info("configurtaion updated!")
+	log.Info("configuration updated!")
 }
