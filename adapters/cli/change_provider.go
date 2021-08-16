@@ -1,8 +1,9 @@
 package cli
 
 import (
-	"github.com/hermeznetwork/hermez-node/log"
 	"os"
+
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
 	"github.com/hermeznetwork/price-updater-service/adapters/command"
@@ -38,5 +39,5 @@ func changeProvider(cfg config.Config) {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
-	log.Info("provider changed!")
+	log.Infof("provider changed to %s!", changeProviderName)
 }

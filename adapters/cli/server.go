@@ -2,9 +2,10 @@ package cli
 
 import (
 	"context"
-	"github.com/hermeznetwork/hermez-node/log"
 	"os"
 	"os/signal"
+
+	"github.com/hermeznetwork/hermez-node/log"
 
 	"github.com/hermeznetwork/price-updater-service/adapters/background"
 	"github.com/hermeznetwork/price-updater-service/adapters/bbolt"
@@ -29,6 +30,7 @@ func server(cfg config.Config) {
 	ctx := context.Background()
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
+	log.Infof("connection established with postgresql server")
 	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
 
 	// repostitory

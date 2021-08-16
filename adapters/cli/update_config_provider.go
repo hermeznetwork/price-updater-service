@@ -31,7 +31,7 @@ func init() {
 }
 
 func updateConfig(cfg config.Config) {
-	log.Info("starting update config to ", provider)
+	log.Info("starting update configuration to ", provider)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
 	configProviderRepository := bbolt.NewProviderConfigRepository(bboltConn)
 	configUpdaterServices := services.NewConfigUpdaterServices(configProviderRepository)
@@ -41,4 +41,5 @@ func updateConfig(cfg config.Config) {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
+	log.Info("configurtaion updated!")
 }
