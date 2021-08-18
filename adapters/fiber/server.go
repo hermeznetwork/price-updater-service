@@ -36,13 +36,19 @@ func NewServer(cc *v1.CurrencyController, tc *v1.TokensController, pcr *services
 		apiKey = "pr1c3upd4t3r"
 	}
 
-	server.fiber.Use(cors.New(cors.Config{
-		Next: func(c *fb.Ctx) bool {
-			userKey := c.Get("X-API-KEY")
-			return userKey == apiKey
-		},
-		AllowOrigins: allowOrigins,
-	}))
+	server.fiber.Use(func(c *fb.Ctx) error {
+		// allow CORS requests
+		if c.Method() == "OPTIONS" {
+			return c.Next()
+		}
+		if c.Get("X-Api-Key") == apiKey {
+			return c.Next()
+		}
+
+		return c.SendStatus(fb.StatusNoContent)
+	})
+
+	server.fiber.Use(cors.New(cors.Config{AllowOrigins: allowOrigins}))
 
 	server.fiber.Get("v1/tokens", server.GetTokenPrices)
 	server.fiber.Get("v1/tokens/:token_id", server.GetTokenPrice)
