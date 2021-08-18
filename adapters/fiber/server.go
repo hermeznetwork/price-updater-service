@@ -5,7 +5,6 @@ import (
 
 	fb "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/skip"
 	v1 "github.com/hermeznetwork/price-updater-service/adapters/fiber/controllers/v1"
 	"github.com/hermeznetwork/price-updater-service/config"
 	"github.com/hermeznetwork/price-updater-service/core/services"
