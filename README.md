@@ -11,7 +11,6 @@ Price Updater is a web service to consult token and currency prices used by Herm
 ## Instalation
 
 To install the system just clone and build it!
-
 ```bash=
 $ git clone git@github.com:hermeznetwork/price-updater-service.git
 $ cd price-updater-service/
