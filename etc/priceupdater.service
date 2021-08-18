@@ -6,6 +6,10 @@ Type=simple
 Restart=always
 RestartSec=5
 KillMode=process
-ExcStart=price-updater server
+ExecStart=price-updater server
+WorkingDirectory=/home/ubuntu/price-updater-service/
 StandardOutput=append:/var/log/price-updater.log
 StandardError=append:/var/log/price-updater.log
+
+[Install]
+WantedBy=multi-user.target
