@@ -19,7 +19,7 @@ $ go build -o priceupdater # or other name that you want
 
 ## Usage 
 
-The system has been designed to run through the commands listed above
+The system is designed to execute the commands listed above. The commands are listed to be executed in the order below.
 
 
 ### Configuration
@@ -91,13 +91,6 @@ There is two commands for project settings:
     This command will set up an apiKey that the system will accept as incoming requests.
 
 
-### Update Static Tokens
-
-There is just one command for update static tokens:
-
-1. `$ priceupdater update-static-token --tokenID 1 --price 1.531`
-    This command will update the price of given tokenID
-
 ### Server
 
 There is just one command for running the server:
@@ -124,6 +117,14 @@ There is just one command for running the server:
           --pg-port int          postgresql port (default 5432)
           --pg-user string       postgresql username
    ```
+
+
+### Update Static Tokens
+
+There is just one command for update static tokens:
+
+1. `$ priceupdater update-static-token --tokenID 1 --price 1.531`
+    This command will update the price of given tokenID
 
 
 ## Providers
