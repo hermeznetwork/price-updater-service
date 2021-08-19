@@ -58,7 +58,7 @@ You can set up the configuration of the system by env file
 
 There are two commands related to providers:
 
-1. [REQUIRED] `$ priceupdater change-prirotiry --provider <provider-name-1>,<provider-name-2>,<provider-name-3>`
+1. [REQUIRED] `$ priceupdater change-prirotiry --priority <provider-name-1>,<provider-name-2>,<provider-name-3>`
     
     The next command allows configure the provider priority. The first provider will be chosen by default but if it fails during retrieving the price for a specific token, the service will try to get the price for this token using the next provider in the list.
     <details><summary><b>Show example</b></summary>
