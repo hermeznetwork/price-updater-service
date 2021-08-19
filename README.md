@@ -19,7 +19,7 @@ $ go build -o priceupdater # or other name that you want
 
 ## Usage 
 
-The system is designed to execute the commands listed above. The commands are listed to be executed in the order below.
+The system has been designed to run through the commands listed above. The commands are listed to be executed in the order below.
 
 
 ### Configuration
