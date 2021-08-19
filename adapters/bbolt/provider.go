@@ -25,26 +25,6 @@ func NewProviderConfigRepository(conn *Connection) ports.ConfigProviderRepositor
 	}
 }
 
-func (cp *ProviderConfigRepository) CurrentProvider() (string, error) {
-	cp.conn.Start()
-	defer cp.conn.End()
-	tx, err := cp.conn.db.Begin(true)
-	if err != nil {
-		return "", err
-	}
-
-	bkt, err := tx.CreateBucketIfNotExists([]byte("runningProvider"))
-	if err != nil {
-		return "", err
-	}
-
-	currentProvider := bkt.Get([]byte("running"))
-	if currentProvider == nil {
-		return "", errors.New("there no provider running")
-	}
-	return string(currentProvider), tx.Commit()
-}
-
 func (cp *ProviderConfigRepository) SaveConfig(provider string, data domain.PriceProvider) error {
 	cp.conn.Start()
 	defer cp.conn.End()
@@ -102,28 +82,6 @@ func (cp *ProviderConfigRepository) LoadConfig(provider string) (domain.PricePro
 	pp.Provider = bpp.Provider
 	pp.MappingBetweenNetwork = bpp.Config
 	return pp, tx.Commit()
-}
-
-func (cp *ProviderConfigRepository) ChangeRunningProvider(provider string) error {
-	cp.conn.Start()
-	defer cp.conn.End()
-	tx, err := cp.conn.db.Begin(true)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	bkt, err := tx.CreateBucketIfNotExists([]byte("runningProvider"))
-	if err != nil {
-		return err
-	}
-
-	err = bkt.Put([]byte("running"), []byte(provider))
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
 }
 
 func (cp *ProviderConfigRepository) ChangePriority(priority string) error {

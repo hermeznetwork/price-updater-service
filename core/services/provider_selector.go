@@ -24,19 +24,8 @@ func NewProviderSelectorService(brepo ports.ConfigProviderRepository, cfg config
 	return &ProviderSelectorService{
 		brepo: brepo,
 		cfg:   cfg,
-		tr: priceRepository,
+		tr:    priceRepository,
 	}
-}
-
-func (selector *ProviderSelectorService) CurrentProvider() (ports.PriceProvider, error) {
-	provider, err := selector.brepo.CurrentProvider()
-	if err != nil {
-		log.Error("try get the current provider: ", err.Error())
-		return nil, err
-	}
-	log.Info("Get the current provider:", provider)
-
-	return selector.Select(provider, []domain.Token{})
 }
 
 func (selector *ProviderSelectorService) Select(name string, defaultTokensInfo []domain.Token) (ports.PriceProvider, error) {
@@ -82,7 +71,7 @@ func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider 
 			//Add token info to the mapping
 			if provider == "bitfinex" {
 				confData[defaultData[i].ID] = defaultData[i].Symbol
-			} else if provider == "coingecko" ||  provider == "uniswap" {
+			} else if provider == "coingecko" || provider == "uniswap" {
 				confData[defaultData[i].ID] = defaultData[i].Address
 			}
 		}

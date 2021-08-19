@@ -21,7 +21,6 @@ func init() {
 
 	rootCmd.AddCommand(serverCmd)
 	rootCmd.AddCommand(updaterCmd)
-	rootCmd.AddCommand(changeProviderCmd)
 	rootCmd.AddCommand(setupOriginCmd)
 	rootCmd.AddCommand(setupAPIKeyCmd)
 	rootCmd.AddCommand(updateStaticTokenCmd)

@@ -12,8 +12,6 @@ type PriceProvider interface {
 }
 
 type ConfigProviderRepository interface {
-	CurrentProvider() (string, error)
-	ChangeRunningProvider(provider string) error
 	SaveConfig(provider string, data domain.PriceProvider) error
 	LoadConfig(provider string) (domain.PriceProvider, error)
 	ChangePriority(priority string) error
