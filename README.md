@@ -4,7 +4,7 @@ Price Updater is a web service to consult token and currency prices used by Herm
 
 ## How It Works
 
-1. The system was built with Golang and designed to run through [commands](##usage).
+1. The system was built with Golang and designed to run through [commands](#usage).
 2. Given a specific time to update (the time can be set in through configuration, or by using a default value of 30s), the system updates the prices of currency and tokens.
 3. The prices of tokens and currencies are returned through an endpoint.
 
@@ -16,6 +16,8 @@ $ git clone git@github.com:hermeznetwork/price-updater-service.git
 $ cd price-updater-service/
 $ go build -o priceupdater # or other name that you want
 ```
+
+Click here to see [set up documentation](SETUP_PRICE_UPDATER.md).
 
 ## Usage 
 
