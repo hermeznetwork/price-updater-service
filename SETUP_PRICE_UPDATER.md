@@ -21,6 +21,7 @@ $ priceupdater change-priority --priority bifinex,uniswap
 
 # Second, load the configuration to providers
 $ priceupdater update-config --provider bitfinex --configFile pathToConfig.json
+$ priceupdater update-config --provider uniswap --configFile pathToConfig.json
 
 # Third, create a Key for API
 $ priceupdater setup-apikey --apiKey Th3P0w3r4p1K3y
