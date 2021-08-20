@@ -13,6 +13,19 @@ $ go build -o priceupdater # or other name that you want
 
 Before execute this steps, you should [configure](https://github.com/hermeznetwork/price-updater-service#configuration) the service.
 
+### Quick Guide
+
+```cmd=
+# First, define the priority execution of providers
+$ priceupdater change-priority --priority bifinex,uniswap
+
+# Second, load the configuration to providers
+$ priceupdater update-config --provider bitfinex --configFile pathToConfig.json
+
+# Third, create a Key for API
+$ priceupdater setup-apikey --apiKey Th3P0w3r4p1K3y
+```
+
 1. Copy service file to systemd folder:
 
 ```cmd=
