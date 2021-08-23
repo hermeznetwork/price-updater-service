@@ -4,7 +4,7 @@ Price Updater is a web service to consult token and currency prices used by Herm
 
 ## How It Works
 
-1. The system was built with Golang and designed to run through [commands](##usage).
+1. The system was built with Golang and designed to run through [commands](#usage).
 2. Given a specific time to update (the time can be set in through configuration, or by using a default value of 30s), the system updates the prices of currency and tokens.
 3. The prices of tokens and currencies are returned through an endpoint.
 
@@ -17,9 +17,11 @@ $ cd price-updater-service/
 $ go build -o priceupdater # or other name that you want
 ```
 
+Click here to see [set up documentation](SETUP_PRICE_UPDATER.md).
+
 ## Usage 
 
-The system has been designed to run through the commands listed above
+The system has been designed to run through the commands listed above. The commands are listed to be executed in the order below.
 
 
 ### Configuration
@@ -58,17 +60,18 @@ You can set up the configuration of the system by env file
 
 There are two commands related to providers:
 
-1. `change-provider --provider <provider-name>`
+1. [REQUIRED] `$ priceupdater change-prirotiry --priority <provider-name-1>,<provider-name-2>,<provider-name-3>`
     
-    This command must be executed before the other commands. It tells the system what provider must be executed.
-    
-    It is used to change the provider in runtime.
+    The next command allows configure the provider priority. The first provider will be chosen by default but if it fails during retrieving the price for a specific token, the service will try to get the price for this token using the next provider in the list.
     <details><summary><b>Show example</b></summary>
-    
-    ```bash
-    $ priceupdater change-provider --provider bitfinex
+
     ```
-2. `update-config --provider <provider-name> --configFile <path-to-config.json>`
+    $ priceupdater change-priority --priority <provider_1>,<provider_2>,<provider_3>
+    ```
+
+###### Note: <provider_1> has the highest priority and <provider_2> the lowest
+
+2. [REQUIRED] `update-config --provider <provider-name> --configFile <path-to-config.json>`
     
     After running `change-provider` the first time, you should load the provider's configuration
     <details><summary><b>Show example</b></summary>
@@ -79,37 +82,22 @@ There are two commands related to providers:
     ```
 ###### Note: This action must be done for each provider we want to configure.
 
-### Priority configuration (Requirement)
-The next command allows configure the provider priority. The first provider will be chosen by default but if it fails during retrieving the price for a specific token, the service will try to get the price for this token using the next provider in the list.
-Run: 
-```
-change-priority --priority <provider_1>,<provider_2>,<provider_3>
-```
-###### Note: <provider_1> has the highest priority and <provider_2> the lowest
-
 ### Project Settings
 
 There is two commands for project settings:
 
-1. `setup-origin --origins "items,comma,separated"`
+1. [OPTIONAL] `$ priceupdater setup-origin --origins "items,comma,separated"`
     This command will set up hostnames that the system will accept as incoming requests. The default value is `*`, which means it accepts all requests. 
 
-2. `setup-apikey --apiKey "pr1c3upd4t3r"`
-    This command will set up an apiKey that the system will accept as incoming requests. The default value is `pr1c3upd4t3r`.
+2. [REQUIRED] `setup-apikey --apiKey "pr1c3upd4t3r"`
+    This command will set up an apiKey that the system will accept as incoming requests.
 
-
-### Update Static Tokens
-
-There is just one command for update static tokens:
-
-1. `update-static-token --tokenID 1 --price 1.531`
-    This command will update the price of given tokenID
 
 ### Server
 
 There is just one command for running the server:
 
-1. `server`
+1. `$ priceupdater server`
 
     This command will start the Price Updater server. It's possible to pass some configurations to the system.
     
@@ -131,6 +119,14 @@ There is just one command for running the server:
           --pg-port int          postgresql port (default 5432)
           --pg-user string       postgresql username
    ```
+
+
+### Update Static Tokens
+
+There is just one command for update static tokens:
+
+1. `$ priceupdater update-static-token --tokenID 1 --price 1.531`
+    This command will update the price of given tokenID
 
 
 ## Providers
