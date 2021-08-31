@@ -54,6 +54,13 @@ func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit ui
 	pgPosition := 2
 	query := "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE "
 
+	if order == "ASC" {
+		query += fmt.Sprintf("item_id >= $%d ", pgPosition)
+	} else {
+		query += fmt.Sprintf("item_id <= $%d ", pgPosition)
+	}
+	args = append(args, fromItem)
+
 	// TODO: change to sqlx to avoid this workarround
 	if len(ids) > 0 {
 		var q []string
@@ -61,18 +68,11 @@ func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit ui
 			q = append(q, fmt.Sprintf("$%d", pgPosition))
 			pgPosition += 1
 		}
-		query += fmt.Sprintf("AND token_id IN (%s) ", strings.Join(q, ","))
+		query += fmt.Sprintf("token_id IN (%s) ", strings.Join(q, ","))
 		for _, tokenID := range ids {
 			args = append(args, tokenID)
 		}
 	}
-
-	if order == "ASC" {
-		query += fmt.Sprintf("AND item_id >= $%d ", pgPosition)
-	} else {
-		query += fmt.Sprintf("AND item_id <= $%d ", pgPosition)
-	}
-	args = append(args, fromItem)
 
 	// pagination
 	query += "ORDER BY item_id "
