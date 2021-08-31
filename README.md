@@ -321,6 +321,57 @@ Server: cloudflare
 }
 ```
 
+### Filter tokens
+
+- Endpoint: /v1/tokens?id=1|5
+- HTTP Method: GET
+- Details: Returns the price for a filtered token.
+
+```
+☁  ~  http https://priceupdater.hermez.io/v1/tokens id=="1|5" X-API-KEY:"pr1c3upd4t3r"
+
+HTTP/1.1 200 OK
+CF-Cache-Status: DYNAMIC
+CF-RAY: 678fe9531fa32599-GIG
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Type: application/json
+Date: Tue, 03 Aug 2021 13:32:21 GMT
+Expect-CT: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+Last-Modified: Tue, 03 Aug 2021 13:32:21 GMT
+NEL: {"report_to":"cf-nel","max_age":604800}
+Report-To: {"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=Z%2FkQ4PDo%2F6j7tMUzzdOsrS9qNpJlpuzalOy8zy%2BYzJwYplD0%2ByuCU8hFxJo1IuZq2TLPP2e7Q7CEUp8Extjjx3joGBCxKgpaYU5skIZSGxGmGCcpVodgVBi9yGEGKfdQUgA1aI2rjiwQL2OXcl8HQLi%2Byng%3D"}],"group":"cf-nel","max_age":604800}
+Server: cloudflare
+Transfer-Encoding: chunked
+
+{
+    "tokens": [
+        {
+            "USD": 0,
+            "decimals": 18,
+            "ethereumAddress": "0x55a1Db90A5753e6Ff50FD018d7E648d58A081486",
+            "ethereumBlockNum": 4417287,
+            "id": 1,
+            "itemId": 2,
+            "name": "Hermez Network Token",
+            "symbol": "HEZ",
+            "usdUpdate": "1970-01-01T00:00:00Z"
+        },
+        {
+            "USD": 0,
+            "decimals": 18,
+            "ethereumAddress": "0x661E5805cb0b671F0D7ba3CFD7398F885195f866",
+            "ethereumBlockNum": 4611744,
+            "id": 5,
+            "itemId": 6,
+            "name": "GAS GAS GAAAS",
+            "symbol": "GAS",
+            "usdUpdate": "1970-01-01T00:00:00Z"
+        }
+    ]
+}
+```
+
 ### Currencies
 
 - Endpoint: /v1/currencies
