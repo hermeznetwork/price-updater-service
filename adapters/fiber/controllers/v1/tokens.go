@@ -66,7 +66,9 @@ func (p *TokensController) GetTokenPrices(ctx *fiber.Ctx) error {
 	if order == "" {
 		order = "ASC"
 	}
-	prices, err := p.svc.GetTokens(uint(fromItem), uint(limit), order)
+
+	ids := normalizeSymbolFilter(ctx.Query("id"))
+	prices, err := p.svc.GetTokens(uint(limit), uint(fromItem), order, ids)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": err.Error(),

@@ -81,7 +81,7 @@ func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider 
 
 func (selector *ProviderSelectorService) getProviderWithDefaultTokens(ctx context.Context, priorityProviders []string) ([]ports.PriceProvider, error) {
 	//Get default token info
-	defaultTokensInfo, err := selector.tr.GetTokens(ctx, 0, 0, "ASC")
+	defaultTokensInfo, err := selector.tr.GetTokens(ctx, 0, 0, "ASC", []string{})
 	if err != nil {
 		log.Error("error getting default token values from db: ", err)
 	}

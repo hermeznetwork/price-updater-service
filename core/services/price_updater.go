@@ -30,8 +30,8 @@ func (s *PriceUpdaterService) GetToken(tokenID uint) (domain.Token, error) {
 	return s.tr.GetToken(s.ctx, tokenID)
 }
 
-func (s *PriceUpdaterService) GetTokens(fromItem uint, limit uint, order string) ([]domain.Token, error) {
-	return s.tr.GetTokens(s.ctx, fromItem, limit, order)
+func (s *PriceUpdaterService) GetTokens(fromItem uint, limit uint, order string, ids []string) ([]domain.Token, error) {
+	return s.tr.GetTokens(s.ctx, fromItem, limit, order, ids)
 }
 
 func (s *PriceUpdaterService) UpdatePrices() error {
