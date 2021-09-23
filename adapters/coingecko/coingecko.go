@@ -5,6 +5,7 @@ import (
 	"github.com/hermeznetwork/hermez-node/log"
 	"net/http"
 	"time"
+	"strings"
 
 	"github.com/dghubble/sling"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
@@ -73,7 +74,7 @@ func (c *Client) GetPrices(ctx context.Context) ([]map[uint]float64, []uint, err
 		}
 		itemResponseKey := "ethereum"
 		if address != EmptyAddr {
-			itemResponseKey = address
+			itemResponseKey = strings.ToLower(address)
 		}
 		value := data[itemResponseKey]["usd"]
 		if res.StatusCode != http.StatusOK || len(data) == 0 {
@@ -115,7 +116,7 @@ func (c *Client) GetFailedPrices(ctx context.Context, prices []map[uint]float64,
 		}
 		itemResponseKey := "ethereum"
 		if address != EmptyAddr {
-			itemResponseKey = address
+			itemResponseKey = strings.ToLower(address)
 		}
 		value := data[itemResponseKey]["usd"]
 		if res.StatusCode != http.StatusOK || len(data) == 0 {
