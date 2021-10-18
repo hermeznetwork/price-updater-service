@@ -33,6 +33,7 @@ func updateStaticToken(cfg config.Config) {
 	log.Info("update static token %d\n", staticTokenID)
 	ctx := context.Background()
 	postgresCon := postgres.NewConnection(ctx, &cfg.Postgres)
+	defer postgresCon.DB.Close()
 	tokenRepository := postgres.NewTokenRepository(postgresCon)
 	tokenService := services.NewPriceUpdaterService(ctx, nil, tokenRepository)
 	err := tokenService.UpdatePrice(staticTokenID, newStaticTokenPrice)

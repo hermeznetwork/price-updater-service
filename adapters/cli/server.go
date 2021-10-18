@@ -71,6 +71,7 @@ func server(cfg config.Config) {
 	bgToken.AddWg(1)
 	go bgToken.StartUpdateProcess()
 	waitSigInt()
+	defer postgresConn.DB.Close()
 	bgToken.Stop()
 }
 
