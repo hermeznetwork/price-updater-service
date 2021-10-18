@@ -39,7 +39,6 @@ func setupOrigin(cfg config.Config) {
 	log.Info("set up origin list")
 
 	bboltCon := bbolt.NewConnection(cfg.Bbolt)
-	defer bboltCon.End()
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltCon)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
 	if err := projectConfigService.SaveOriginValue(origins); err != nil {
@@ -53,7 +52,6 @@ func setupAPIKey(cfg config.Config) {
 	log.Info("set up apikey")
 
 	bboltCon := bbolt.NewConnection(cfg.Bbolt)
-	defer bboltCon.End()
 	projectConfigRepository := bbolt.NewProjectConfigRepository(bboltCon)
 	projectConfigService := services.NewProjectConfigServices(projectConfigRepository)
 	if err := projectConfigService.SaveAPIKey(apiKey); err != nil {

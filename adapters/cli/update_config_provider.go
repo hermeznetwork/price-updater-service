@@ -33,7 +33,6 @@ func init() {
 func updateConfig(cfg config.Config) {
 	log.Info("starting update configuration to ", provider)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
-	defer bboltConn.End()
 	configProviderRepository := bbolt.NewProviderConfigRepository(bboltConn)
 	configUpdaterServices := services.NewConfigUpdaterServices(configProviderRepository)
 	updatConfigCmd := command.NewUpdateProviderConfigCommand(provider, jsonConfigFile, configUpdaterServices)

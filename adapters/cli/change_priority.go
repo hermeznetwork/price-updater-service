@@ -30,7 +30,6 @@ func init() {
 func changePriority(priority string) {
 	log.Info("changing provider priority: ", priority)
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
-	defer bboltConn.End()
 	priorityRepository := bbolt.NewProviderConfigRepository(bboltConn)
 	priorityServices := services.NewConfigUpdaterServices(priorityRepository)
 	changePriorityCmd := command.NewChangePriorityCommand(priority, priorityServices)
