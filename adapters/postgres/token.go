@@ -35,7 +35,7 @@ func NewTokenRepository(conn *Connection) ports.TokenRepository {
 
 func (t *TokenRepository) GetToken(ctx context.Context, tokenID uint) (domain.Token, error) {
 	var token domain.Token
-	stmt := t.conn.db.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE token_id  = $1", tokenID)
+	stmt := t.conn.DB.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE token_id  = $1", tokenID)
 	tdb := tokenFromDB{}
 	err := stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
 	if err == sql.ErrNoRows {
@@ -85,7 +85,7 @@ func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit ui
 		query += fmt.Sprintf("LIMIT %d;", limit)
 	}
 
-	stmt, err := t.conn.db.QueryContext(ctx, query, args...)
+	stmt, err := t.conn.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return tokens, err
 	}
@@ -102,7 +102,7 @@ func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit ui
 }
 
 func (t *TokenRepository) UpdateTokenPrice(ctx context.Context, tokenID uint, value float64) error {
-	stmt, err := t.conn.db.PrepareContext(ctx, "UPDATE token SET usd = $1 WHERE token_id = $2")
+	stmt, err := t.conn.DB.PrepareContext(ctx, "UPDATE token SET usd = $1 WHERE token_id = $2")
 	if err != nil {
 		return err
 	}

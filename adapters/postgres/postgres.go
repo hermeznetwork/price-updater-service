@@ -13,7 +13,7 @@ import (
 )
 
 type Connection struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 func NewConnection(ctx context.Context, cfg *config.PostgresConfig) *Connection {
@@ -45,6 +45,6 @@ func NewConnection(ctx context.Context, cfg *config.PostgresConfig) *Connection 
 	db.SetMaxIdleConns(cfg.MaxIdleConns)
 
 	return &Connection{
-		db: db,
+		DB: db,
 	}
 }
