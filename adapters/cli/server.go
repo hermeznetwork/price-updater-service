@@ -29,6 +29,7 @@ var serverCmd = &cobra.Command{
 func server(cfg config.Config) {
 	ctx := context.Background()
 	postgresConn := postgres.NewConnection(ctx, &cfg.Postgres)
+	defer postgresConn.DB.Close()
 	bboltConn := bbolt.NewConnection(cfg.Bbolt)
 	log.Infof("connection established with postgresql server")
 	configProviderRepo := bbolt.NewProviderConfigRepository(bboltConn)
@@ -71,7 +72,6 @@ func server(cfg config.Config) {
 	bgToken.AddWg(1)
 	go bgToken.StartUpdateProcess()
 	waitSigInt()
-	defer postgresConn.DB.Close()
 	bgToken.Stop()
 }
 
