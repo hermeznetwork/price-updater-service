@@ -4,8 +4,7 @@ import 	"github.com/ethereum/go-ethereum/common"
 
 type Token struct {
 	ItemID    uint           `db:"item_id"`
-	TokenID   uint           `db:"token_id"`
-	ID        uint           `db:"id"`
+	ID        uint           `db:"token_id"`
 	Price     float64        `db:"usd"`
 	Symbol    string         `db:"symbol"`
 	Address   common.Address `db:"eth_addr"`
