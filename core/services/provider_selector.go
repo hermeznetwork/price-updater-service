@@ -72,7 +72,7 @@ func mergeTokens(defaultData []domain.Token, confData map[uint]string, provider 
 			if provider == "bitfinex" {
 				confData[defaultData[i].ID] = defaultData[i].Symbol
 			} else if provider == "coingecko" || provider == "uniswap" {
-				confData[defaultData[i].ID] = defaultData[i].Address
+				confData[defaultData[i].ID] = defaultData[i].Address.String()
 			}
 		}
 	}

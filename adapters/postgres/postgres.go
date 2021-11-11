@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"fmt"
 	"net"
 	"net/url"
@@ -13,7 +13,7 @@ import (
 )
 
 type Connection struct {
-	DB *sql.DB
+	DB *sqlx.DB
 }
 
 func NewConnection(ctx context.Context, cfg *config.PostgresConfig) *Connection {
@@ -32,7 +32,7 @@ func NewConnection(ctx context.Context, cfg *config.PostgresConfig) *Connection 
 	dbURL.RawQuery = q.Encode()
 	dbURLStr := dbURL.String()
 
-	db, err := sql.Open("postgres", dbURLStr)
+	db, err := sqlx.Open("postgres", dbURLStr)
 	if err != nil {
 		panic(fmt.Sprintf("can't connect to postgres error: %s", err.Error()))
 	}

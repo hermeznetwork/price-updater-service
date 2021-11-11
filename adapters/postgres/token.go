@@ -6,22 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/hermeznetwork/price-updater-service/core/domain"
 	"github.com/hermeznetwork/price-updater-service/core/ports"
 )
-
-type tokenFromDB struct {
-	ItemID    uint
-	ID        uint
-	BlockNum  uint
-	Name      string
-	Symbol    string
-	Price     float64
-	Address   common.Address
-	Decimals  uint
-	UsdUpdate string
-}
 
 type TokenRepository struct {
 	conn *Connection
@@ -35,16 +22,13 @@ func NewTokenRepository(conn *Connection) ports.TokenRepository {
 
 func (t *TokenRepository) GetToken(ctx context.Context, tokenID uint) (domain.Token, error) {
 	var token domain.Token
-	stmt := t.conn.DB.QueryRowContext(ctx, "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE token_id  = $1", tokenID)
-	tdb := tokenFromDB{}
-	err := stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
+	err := t.conn.DB.Get(&token, "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE token_id  = $1", tokenID)
 	if err == sql.ErrNoRows {
 		return token, nil
 	}
 	if err != nil {
 		return token, err
 	}
-	token = dbToDomainToken(tdb)
 	return token, nil
 }
 
@@ -52,7 +36,7 @@ func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit ui
 	var tokens []domain.Token
 	var args []interface{}
 	pgPosition := 1
-	query := "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00'), name, symbol, COALESCE(usd,0), eth_addr FROM token WHERE "
+	query := "SELECT item_id, token_id, eth_block_num, decimals, COALESCE(usd_update,'1970-01-01 00:00:00') as usd_update, name, symbol, COALESCE(usd,0) as usd, eth_addr FROM token WHERE "
 
 	if order == "ASC" {
 		query += fmt.Sprintf("item_id >= $%d ", pgPosition)
@@ -84,42 +68,12 @@ func (t *TokenRepository) GetTokens(ctx context.Context, fromItem uint, limit ui
 	if limit != 0 {
 		query += fmt.Sprintf("LIMIT %d;", limit)
 	}
-
-	stmt, err := t.conn.DB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return tokens, err
-	}
-
-	for stmt.Next() {
-		tdb := tokenFromDB{}
-		err = stmt.Scan(&tdb.ItemID, &tdb.ID, &tdb.BlockNum, &tdb.Decimals, &tdb.UsdUpdate, &tdb.Name, &tdb.Symbol, &tdb.Price, &tdb.Address)
-		if err != nil {
-			return tokens, err
-		}
-		tokens = append(tokens, dbToDomainToken(tdb))
-	}
-	return tokens, nil
+	err := t.conn.DB.Select(&tokens, query, args...)
+	return tokens, err
 }
 
 func (t *TokenRepository) UpdateTokenPrice(ctx context.Context, tokenID uint, value float64) error {
-	stmt, err := t.conn.DB.PrepareContext(ctx, "UPDATE token SET usd = $1 WHERE token_id = $2")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.ExecContext(ctx, value, tokenID)
+	query := "UPDATE token SET usd = $1 WHERE token_id = $2"
+	_, err := t.conn.DB.Exec(query, value, tokenID)
 	return err
-}
-
-func dbToDomainToken(tdb tokenFromDB) domain.Token {
-	return domain.Token{
-		ItemID:    tdb.ItemID,
-		ID:        tdb.ID,
-		Price:     tdb.Price,
-		Symbol:    tdb.Symbol,
-		Address:   tdb.Address.String(),
-		BlockNum:  tdb.BlockNum,
-		Name:      tdb.Name,
-		Decimals:  tdb.Decimals,
-		UsdUpdate: tdb.UsdUpdate,
-	}
 }

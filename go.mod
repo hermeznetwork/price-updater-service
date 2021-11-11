@@ -7,7 +7,9 @@ require (
 	github.com/dghubble/sling v1.3.0
 	github.com/ethereum/go-ethereum v1.10.4
 	github.com/gofiber/fiber/v2 v2.17.0
-	github.com/hermeznetwork/hermez-node v1.6.0
+	github.com/hermeznetwork/hermez-go-sdk v0.1.1 // indirect
+	github.com/hermeznetwork/hermez-node v1.7.0
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/lib/pq v1.10.2
 	github.com/spf13/cobra v1.2.1
