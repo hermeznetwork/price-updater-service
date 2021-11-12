@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hermeznetwork/price-updater-service/core/domain"
+	"github.com/hermeznetwork/hermez-node/common"
 )
 
 func TestLoadToMemory(t *testing.T) {
@@ -16,7 +17,7 @@ func TestLoadToMemory(t *testing.T) {
 		ID:        1,
 		Price:     9.9,
 		Symbol:    "",
-		Address:   "",
+		Address:   common.EmptyAddr,
 		BlockNum:  0,
 		Name:      "",
 		Decimals:  0,

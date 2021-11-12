@@ -22,8 +22,7 @@ func NewFiatPricesRepository(conn *Connection) ports.FiatPriceRepository {
 
 func (f *FiatPricesRepository) GetFiatPrice(ctx context.Context, currency string) (domain.FiatPrice, error) {
 	var fp domain.FiatPrice
-	stmt := f.conn.DB.QueryRowContext(ctx, "SELECT currency, base_currency, COALESCE(price,0), COALESCE(last_update,'1970-01-01 00:00:00') FROM fiat WHERE currency = $1;", currency)
-	err := stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price, &fp.LastUpdate)
+	err := f.conn.DB.Get(&fp, "SELECT currency, base_currency, COALESCE(price,0), COALESCE(last_update,'1970-01-01 00:00:00') FROM fiat WHERE currency = $1;", currency)
 	if err == sql.ErrNoRows {
 		return fp, nil
 	}
@@ -38,7 +37,7 @@ func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, baseCurrency s
 	var args []interface{}
 	pgPosition := 2
 	args = append(args, baseCurrency)
-	query := "SELECT currency, base_currency, COALESCE(price,0), COALESCE(last_update,'1970-01-01 00:00:00') FROM fiat WHERE base_currency = $1 "
+	query := "SELECT currency, base_currency, COALESCE(price,0) as price, COALESCE(last_update,'1970-01-01 00:00:00') as last_update FROM fiat WHERE base_currency = $1 "
 
 	// TODO: change to sqlx to avoid this workarround
 	if len(symbolFilters) > 0 {
@@ -70,37 +69,18 @@ func (f *FiatPricesRepository) GetFiatPrices(ctx context.Context, baseCurrency s
 	if limit != 0 {
 		query += fmt.Sprintf("LIMIT %d;", limit)
 	}
-	stmt, err := f.conn.DB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return fiatPrices, err
-	}
-
-	for stmt.Next() {
-		fp := domain.FiatPrice{}
-		err = stmt.Scan(&fp.Currency, &fp.BaseCurrency, &fp.Price, &fp.LastUpdate)
-		if err != nil {
-			return fiatPrices, err
-		}
-		fiatPrices = append(fiatPrices, fp)
-	}
-
-	return fiatPrices, nil
+	err := f.conn.DB.Select(&fiatPrices, query, args...)
+	return fiatPrices, err
 }
 
 func (f *FiatPricesRepository) CreateFiatPrice(ctx context.Context, base_currency, currency string, price float64) error {
-	stmt, err := f.conn.DB.PrepareContext(ctx, "INSERT INTO fiat(currency, base_currency, price) VALUES ($1, $2, $3)")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.ExecContext(ctx, currency, base_currency, price)
+	query := "INSERT INTO fiat(currency, base_currency, price) VALUES ($1, $2, $3)"
+	_, err := f.conn.DB.Exec(query, currency, base_currency, price)
 	return err
 }
 
 func (f *FiatPricesRepository) UpdateFiatPrice(ctx context.Context, base_currency, currency string, price float64) error {
-	stmt, err := f.conn.DB.PrepareContext(ctx, "UPDATE fiat SET price = $1 WHERE currency = $2 AND base_currency = $3")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.ExecContext(ctx, price, currency, base_currency)
+	query := "UPDATE fiat SET price = $1 WHERE currency = $2 AND base_currency = $3"
+	_, err := f.conn.DB.Exec(query, price, currency, base_currency)
 	return err
 }

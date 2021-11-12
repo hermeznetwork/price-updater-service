@@ -84,7 +84,7 @@ func domainToHttpToken(p domain.Token) tokenOut {
 		ItemID:           p.ItemID,
 		ID:               p.ID,
 		EthereumBlockNum: p.BlockNum,
-		EthereumAddress:  p.Address,
+		EthereumAddress:  p.Address.String(),
 		Name:             p.Name,
 		Symbol:           p.Symbol,
 		Decimals:         p.Decimals,
